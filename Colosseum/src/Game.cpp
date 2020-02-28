@@ -1,9 +1,20 @@
-namespace RoMan
-{
-	_declspec(dllimport) void Print();
-}
+#include <RoMan.h>
 
-void main()
+class Colosseum : public RoMan::Application
 {
-	RoMan::Print();
+public:
+	Colosseum()
+	{
+
+	}
+
+	~Colosseum()
+	{
+
+	}
+};
+
+RoMan::Application* RoMan::CreateApplication()
+{
+	return new Colosseum();
 }
