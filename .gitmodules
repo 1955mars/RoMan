@@ -1,0 +1,3 @@
+[submodule "RoMan/vendor/spdlog"]
+	path = RoMan/vendor/spdlog
+	url = https://github.com/gabime/spdlog.git
