@@ -2,8 +2,6 @@
 
 #include "RoMan/Core.h"
 
-#include <string>
-#include <functional>
 
 namespace RoMan
 {
