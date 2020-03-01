@@ -35,6 +35,10 @@
       <Filter>RoMan</Filter>
     </ClInclude>
     <ClInclude Include="src\rmpch.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
+    <ClInclude Include="src\RoMan\Window.h">
+      <Filter>RoMan</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\RoMan\Application.cpp">
@@ -44,5 +48,6 @@
       <Filter>RoMan</Filter>
     </ClCompile>
     <ClCompile Include="src\rmpch.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
   </ItemGroup>
 </Project>
