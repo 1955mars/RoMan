@@ -18,6 +18,9 @@ project "RoMan"
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
+	pchheader "rmpch.h"
+	pchsource "RoMan/src/rmpch.cpp"
+
 	files
 	{
 		"%{prj.name}/src/**.h",
