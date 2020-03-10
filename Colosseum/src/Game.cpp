@@ -28,6 +28,7 @@ public:
 	Colosseum()
 	{
 		PushLayer(new ExampleLayer());
+		PushOverlay(new RoMan::ImGuiLayer());
 	}
 
 	~Colosseum()
