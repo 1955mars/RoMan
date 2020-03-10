@@ -3,6 +3,7 @@
 //For use only by RoMan applications
 #include <stdio.h>
 #include "RoMan/Application.h"
+#include "RoMan/Layer.h"
 #include "RoMan/Log.h"
 
 //-------Entry Point------------

@@ -65,14 +65,17 @@ project "RoMan"
 
 	filter "configurations:Debug"
 		defines "RM_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "RM_RELEASE"
+		buildoptions "/MDd"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "RM_DIST"
+		buildoptions "/MDd"
 		optimize "On"
 
 
@@ -114,12 +117,15 @@ project "Colosseum"
 
 	filter "configurations:Debug"
 		defines "RM_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "RM_RELEASE"
+		buildoptions "/MDd"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "RM_DIST"
+		buildoptions "/MDd"
 		optimize "On"
