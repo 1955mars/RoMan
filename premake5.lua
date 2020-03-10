@@ -13,8 +13,10 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
 IncludeDir["GLFW"] = "RoMan/vendor/GLFW/include"
+IncludeDir["Glad"] = "RoMan/vendor/Glad/include"
 
 include "RoMan/vendor/GLFW"
+include "RoMan/vendor/Glad"
 
 project "RoMan"
 	location "RoMan"
@@ -37,12 +39,14 @@ project "RoMan"
 	{
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.Glad}"
 	}
 
 	links 
 	{ 
 		"GLFW",
+		"Glad",
 		"opengl32.lib"
 	}
 
@@ -54,7 +58,8 @@ project "RoMan"
 		defines
 		{
 			"RM_PLATFORM_WINDOWS",
-			"RM_BUILD_DLL"
+			"RM_BUILD_DLL",
+			"GLFW_INCLUDE_NONE"
 		}
 
 		postbuildcommands
