@@ -15,6 +15,7 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "RoMan/vendor/GLFW/include"
 IncludeDir["Glad"] = "RoMan/vendor/Glad/include"
 IncludeDir["ImGui"] = "RoMan/vendor/imgui"
+IncludeDir["glm"] = "RoMan/vendor/glm"
 
 
 include "RoMan/vendor/GLFW"
@@ -35,7 +36,9 @@ project "RoMan"
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/vendor/glm/glm/**.hpp",
+		"%{prj.name}/vendor/glm/glm/**.inl"
 	}
 
 	includedirs
@@ -106,7 +109,8 @@ project "Colosseum"
 	includedirs
 	{
 		"RoMan/vendor/spdlog/include;",
-		"RoMan/src"
+		"RoMan/src",
+		"%{IncludeDir.glm}"
 	}
 
 	links
