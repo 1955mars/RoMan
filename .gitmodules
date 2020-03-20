@@ -8,3 +8,6 @@
 	path = RoMan/vendor/imgui
 	url = https://github.com/TheCherno/imgui.git
 	ignore = dirty
+[submodule "RoMan/vendor/glm"]
+	path = RoMan/vendor/glm
+	url = https://github.com/g-truc/glm.git
