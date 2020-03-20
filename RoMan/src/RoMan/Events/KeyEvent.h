@@ -5,7 +5,7 @@
 
 namespace RoMan
 {
-	class ROMAN_API KeyEvent :public Event
+	class ROMAN_API KeyEvent : public Event
 	{
 	public:
 		inline int GetKeyCode() const { return m_KeyCode; }

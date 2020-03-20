@@ -11,12 +11,28 @@ public:
 
 	void OnUpdate() override
 	{
-		RM_INFO("ExampleLayer::Update");
+		//RM_INFO("ExampleLayer::Update");
+
+		if (RoMan::Input::IsKeyPressed(RM_KEY_TAB))
+		{
+			RM_TRACE("Tab key is pressed (polling!)");
+		}
 	}
 
 	void OnEvent(RoMan::Event& event) override
 	{
-		RM_TRACE("{0}", event);
+		//RM_TRACE("{0}", event);
+
+		if (event.GetEventType() == RoMan::EventType::KeyPressed)
+		{
+			RoMan::KeyPressedEvent& e = (RoMan::KeyPressedEvent&) event;
+			if (e.GetKeyCode() == RM_KEY_TAB)
+			{
+				RM_TRACE("Tab key is pressed (event!)");
+			}
+			RM_TRACE("{0}", (char)e.GetKeyCode());
+		}
+
 	}
 
 };

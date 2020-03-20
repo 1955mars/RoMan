@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Platform\OpenGL\ImGuIOpenGLRenderer.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\RoMan.h" />
     <ClInclude Include="src\RoMan\Application.h" />
@@ -164,15 +165,17 @@
     <ClInclude Include="src\RoMan\Events\MouseEvent.h" />
     <ClInclude Include="src\RoMan\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\RoMan\Input.h" />
+    <ClInclude Include="src\RoMan\KeyCodes.h" />
     <ClInclude Include="src\RoMan\Layer.h" />
     <ClInclude Include="src\RoMan\LayerStack.h" />
     <ClInclude Include="src\RoMan\Log.h" />
+    <ClInclude Include="src\RoMan\MouseButtonCodes.h" />
     <ClInclude Include="src\RoMan\Window.h" />
     <ClInclude Include="src\rmpch.h" />
-    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\RoMan\Application.cpp" />
     <ClCompile Include="src\RoMan\ImGui\ImGuiLayer.cpp" />
@@ -182,7 +185,6 @@
     <ClCompile Include="src\rmpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">

@@ -24,6 +24,9 @@
     <ClInclude Include="src\Platform\OpenGL\ImGuIOpenGLRenderer.h">
       <Filter>Platform\OpenGL</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h">
+      <Filter>Platform\Windows</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
@@ -52,6 +55,12 @@
     <ClInclude Include="src\RoMan\ImGui\ImGuiLayer.h">
       <Filter>RoMan\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="src\RoMan\Input.h">
+      <Filter>RoMan</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RoMan\KeyCodes.h">
+      <Filter>RoMan</Filter>
+    </ClInclude>
     <ClInclude Include="src\RoMan\Layer.h">
       <Filter>RoMan</Filter>
     </ClInclude>
@@ -61,16 +70,20 @@
     <ClInclude Include="src\RoMan\Log.h">
       <Filter>RoMan</Filter>
     </ClInclude>
+    <ClInclude Include="src\RoMan\MouseButtonCodes.h">
+      <Filter>RoMan</Filter>
+    </ClInclude>
     <ClInclude Include="src\RoMan\Window.h">
       <Filter>RoMan</Filter>
     </ClInclude>
     <ClInclude Include="src\rmpch.h" />
-    <ClInclude Include="src\RoMan\Input.h" />
-    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.cpp">
       <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
+      <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>Platform\Windows</Filter>
@@ -91,6 +104,5 @@
       <Filter>RoMan</Filter>
     </ClCompile>
     <ClCompile Include="src\rmpch.cpp" />
-    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
 </Project>
