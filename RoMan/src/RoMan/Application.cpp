@@ -3,6 +3,8 @@
 
 #include "RoMan/Log.h"
 
+#include "RoMan/Input.h"
+
 #include <glad/glad.h>
 
 namespace RoMan
@@ -47,6 +49,17 @@ namespace RoMan
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
+
+			auto [x, y] = Input::GetMousePosition();
+
+			RM_CORE_TRACE("{0}, {1}", x, y);
+
+			auto xPos = Input::GetMouseX();
+			RM_CORE_TRACE("xPos = {0}", xPos);
+
+			auto yPos = Input::GetMouseY();
+			RM_CORE_TRACE("yPos = {0}", yPos);
+
 
 			m_Window->OnUpdate();
 		}
