@@ -163,11 +163,13 @@
     <ClInclude Include="src\RoMan\Events\KeyEvent.h" />
     <ClInclude Include="src\RoMan\Events\MouseEvent.h" />
     <ClInclude Include="src\RoMan\ImGui\ImGuiLayer.h" />
+    <ClInclude Include="src\RoMan\Input.h" />
     <ClInclude Include="src\RoMan\Layer.h" />
     <ClInclude Include="src\RoMan\LayerStack.h" />
     <ClInclude Include="src\RoMan\Log.h" />
     <ClInclude Include="src\RoMan\Window.h" />
     <ClInclude Include="src\rmpch.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.cpp" />
@@ -180,6 +182,7 @@
     <ClCompile Include="src\rmpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">
