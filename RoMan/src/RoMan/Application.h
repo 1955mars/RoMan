@@ -7,6 +7,8 @@
 #include "Events/Event.h"
 #include "RoMan/Events/ApplicationEvent.h"
 
+#include "RoMan/ImGui/ImGuiLayer.h"
+
 namespace RoMan
 {
 	class ROMAN_API Application
@@ -28,6 +30,7 @@ namespace RoMan
 		bool OnWindowClose(WindowCloseEvent& e);
 
 		std::unique_ptr<Window> m_Window;
+		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
 

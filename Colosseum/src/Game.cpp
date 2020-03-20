@@ -1,6 +1,8 @@
 #include "rmpch.h"
 #include <RoMan.h>
 
+#include "imgui/imgui.h"
+
 class ExampleLayer : public RoMan::Layer
 {
 public:
@@ -17,6 +19,13 @@ public:
 		{
 			RM_TRACE("Tab key is pressed (polling!)");
 		}
+	}
+
+	virtual void OnImGuiRender() override
+	{
+		ImGui::Begin("Test");
+		ImGui::Text("Hello World");
+		ImGui::End();
 	}
 
 	void OnEvent(RoMan::Event& event) override
@@ -44,7 +53,6 @@ public:
 	Colosseum()
 	{
 		PushLayer(new ExampleLayer());
-		PushOverlay(new RoMan::ImGuiLayer());
 	}
 
 	~Colosseum()

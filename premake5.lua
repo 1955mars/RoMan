@@ -110,6 +110,7 @@ project "Colosseum"
 	{
 		"RoMan/vendor/spdlog/include;",
 		"RoMan/src",
+		"RoMan/vendor",
 		"%{IncludeDir.glm}"
 	}
 
