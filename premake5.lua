@@ -24,14 +24,21 @@ include "RoMan/vendor/imgui"
 
 project "RoMan"
 	location "RoMan"
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	pchheader "rmpch.h"
 	pchsource "RoMan/src/rmpch.cpp"
+
+	defines
+	{
+		"_CRT_SECURE_NO_WARNINGS"
+	}
 
 	files
 	{
@@ -59,8 +66,6 @@ project "RoMan"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
 
 		defines
@@ -70,32 +75,28 @@ project "RoMan"
 			"GLFW_INCLUDE_NONE"
 		}
 
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Colosseum")
-		}
-
-
 	filter "configurations:Debug"
 		defines "RM_DEBUG"
-		buildoptions "/MDd"
-		symbols "On"
+		runtime "Debug"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "RM_RELEASE"
-		buildoptions "/MDd"
-		optimize "On"
+		runtime "Release"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "RM_DIST"
-		buildoptions "/MDd"
-		optimize "On"
+		runtime "Release"
+		optimize "on"
 
 
 project "Colosseum"
 	location "Colosseum"
 	kind "ConsoleApp"
 	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -120,8 +121,6 @@ project "Colosseum"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
 
 		defines
@@ -132,15 +131,15 @@ project "Colosseum"
 
 	filter "configurations:Debug"
 		defines "RM_DEBUG"
-		buildoptions "/MDd"
-		symbols "On"
+		runtime "Debug"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "RM_RELEASE"
-		buildoptions "/MDd"
-		optimize "On"
+		runtime "Release"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "RM_DIST"
-		buildoptions "/MDd"
-		optimize "On"
+		runtime "Release"
+		optimize "on"
