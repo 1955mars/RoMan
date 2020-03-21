@@ -1,6 +1,8 @@
 #pragma once
 
 #include "RoMan/Window.h"
+#include "RoMan/Renderer/GraphicsContext.h"
+
 #include <GLFW/glfw3.h>
 
 namespace RoMan
@@ -29,6 +31,7 @@ namespace RoMan
 
 	private:
 		GLFWwindow* m_Window;
+		GraphicsContext* m_Context;
 
 		struct WindowData
 		{
