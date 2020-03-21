@@ -17,6 +17,11 @@ namespace RoMan
 		glfwMakeContextCurrent(m_WindowHandle);
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		RM_CORE_ASSERT(status, "Failed to initialize Glad");
+
+		RM_CORE_INFO("OpenGL Info:");
+		RM_CORE_INFO(" Vendor: {0}", glGetString(GL_VENDOR));
+		RM_CORE_INFO(" Renderer: {0}", glGetString(GL_RENDERER));
+		RM_CORE_INFO(" Version: {0}", glGetString(GL_VERSION));
 	}
 	void OpenGLContext::SwapBuffers()
 	{
