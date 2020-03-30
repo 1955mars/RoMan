@@ -8,9 +8,4 @@ namespace RoMan {
 	{
 	}
 
-	Layer::~Layer()
-	{
-
-	}
-
 }
