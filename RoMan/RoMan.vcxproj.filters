@@ -1245,6 +1245,8 @@
     <ClInclude Include="src\RoMan\Renderer\Buffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\RoMan\Renderer\Renderer.h" />
+    <ClInclude Include="src\RoMan\Renderer\VertexArray.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
@@ -1279,5 +1281,7 @@
     <ClCompile Include="src\RoMan\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\RoMan\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
+    <ClCompile Include="src\RoMan\Renderer\VertexArray.cpp" />
   </ItemGroup>
 </Project>
