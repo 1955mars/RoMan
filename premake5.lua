@@ -18,9 +18,12 @@ IncludeDir["ImGui"] = "RoMan/vendor/imgui"
 IncludeDir["glm"] = "RoMan/vendor/glm"
 
 
-include "RoMan/vendor/GLFW"
-include "RoMan/vendor/Glad"
-include "RoMan/vendor/imgui"
+group "Dependencies"
+	include "RoMan/vendor/GLFW"
+	include "RoMan/vendor/Glad"
+	include "RoMan/vendor/imgui"
+
+group ""
 
 project "RoMan"
 	location "RoMan"
@@ -54,7 +57,8 @@ project "RoMan"
 		"%{prj.name}/vendor/spdlog/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.glm}"
 	}
 
 	links 

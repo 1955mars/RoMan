@@ -77,7 +77,7 @@
       <PrecompiledHeaderFile>rmpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;RM_PLATFORM_WINDOWS;RM_BUILD_DLL;GLFW_INCLUDE_NONE;RM_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -97,7 +97,7 @@
       <PrecompiledHeaderFile>rmpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;RM_PLATFORM_WINDOWS;RM_BUILD_DLL;GLFW_INCLUDE_NONE;RM_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -121,7 +121,7 @@
       <PrecompiledHeaderFile>rmpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;RM_PLATFORM_WINDOWS;RM_BUILD_DLL;GLFW_INCLUDE_NONE;RM_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\imgui;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -141,11 +141,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
-    <ClInclude Include="src\RoMan\Renderer\Buffer.h" />
-    <ClInclude Include="src\RoMan\Renderer\Renderer.h" />
-    <ClInclude Include="src\RoMan\Renderer\Shader.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\RoMan.h" />
@@ -163,7 +161,12 @@
     <ClInclude Include="src\RoMan\LayerStack.h" />
     <ClInclude Include="src\RoMan\Log.h" />
     <ClInclude Include="src\RoMan\MouseButtonCodes.h" />
+    <ClInclude Include="src\RoMan\Renderer\Buffer.h" />
     <ClInclude Include="src\RoMan\Renderer\GraphicsContext.h" />
+    <ClInclude Include="src\RoMan\Renderer\RenderCommand.h" />
+    <ClInclude Include="src\RoMan\Renderer\Renderer.h" />
+    <ClInclude Include="src\RoMan\Renderer\RendererAPI.h" />
+    <ClInclude Include="src\RoMan\Renderer\Shader.h" />
     <ClInclude Include="src\RoMan\Renderer\VertexArray.h" />
     <ClInclude Include="src\RoMan\Window.h" />
     <ClInclude Include="src\rmpch.h" />
@@ -550,11 +553,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
-    <ClCompile Include="src\RoMan\Renderer\Buffer.cpp" />
-    <ClCompile Include="src\RoMan\Renderer\Renderer.cpp" />
-    <ClCompile Include="src\RoMan\Renderer\Shader.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\RoMan\Application.cpp" />
@@ -563,10 +564,15 @@
     <ClCompile Include="src\RoMan\Layer.cpp" />
     <ClCompile Include="src\RoMan\LayerStack.cpp" />
     <ClCompile Include="src\RoMan\Log.cpp" />
+    <ClCompile Include="src\RoMan\Renderer\Buffer.cpp" />
+    <ClCompile Include="src\RoMan\Renderer\RenderCommand.cpp" />
+    <ClCompile Include="src\RoMan\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\RoMan\Renderer\RendererAPI.cpp" />
+    <ClCompile Include="src\RoMan\Renderer\Shader.cpp" />
+    <ClCompile Include="src\RoMan\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\rmpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\RoMan\Renderer\VertexArray.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">

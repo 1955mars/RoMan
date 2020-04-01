@@ -10,11 +10,11 @@ namespace RoMan
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::None: 
+		case RendererAPI::API::None: 
 			RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");
 			return nullptr;
 
-		case RendererAPI::OpenGL: 
+		case RendererAPI::API::OpenGL: 
 			return new OpenGLVertexArray();
 				
 		}
