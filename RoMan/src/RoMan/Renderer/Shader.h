@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "glm/glm.hpp"
 
 namespace RoMan
 {
@@ -12,6 +13,8 @@ namespace RoMan
 
 		void Bind() const;
 		void UnBind() const;
+
+		void UploadUniformMatrix4(const std::string& name, const glm::mat4& matrix);
 	private:
 		uint32_t m_RendererID;
 	};
