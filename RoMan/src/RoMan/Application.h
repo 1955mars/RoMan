@@ -15,6 +15,8 @@
 
 #include "RoMan/Renderer/VertexArray.h"
 
+#include "RoMan/Renderer/OrthographicCamera.h"
+
 namespace RoMan
 {
 	class ROMAN_API Application
@@ -45,6 +47,8 @@ namespace RoMan
 
 		std::shared_ptr<Shader> m_BlueShader;
 		std::shared_ptr<VertexArray> m_SquareVA;
+
+		OrthographicCamera m_Camera;
 
 	private:
 		static Application* s_Instance;
