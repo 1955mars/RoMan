@@ -2,6 +2,7 @@
 
 #include "RoMan/Core.h"
 #include "RoMan/Events/Event.h"
+#include "RoMan/Core/Timestep.h"
 
 namespace RoMan {
 
@@ -13,7 +14,7 @@ namespace RoMan {
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnUpdate() {}
+		virtual void OnUpdate(Timestep ts) {}
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event& event) {}
 
