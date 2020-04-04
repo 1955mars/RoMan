@@ -4,6 +4,8 @@
 #include "imgui/imgui.h"
 #include "glm/glm.hpp"
 
+#include "glm/gtc/matrix_transform.hpp"
+
 
 class ExampleLayer : public RoMan::Layer
 {
@@ -38,10 +40,10 @@ public:
 
 		m_SquareVA.reset(RoMan::VertexArray::Create());
 		float squareVertices[3 * 4] = {
-			-0.75f, -0.75f, 0.0f,
-			 0.75f, -0.75f, 0.0f,
-			 0.75f,  0.75f, 0.0f,
-			-0.75f,  0.75f, 0.0f
+			-0.5f, -0.5f, 0.0f,
+			 0.5f, -0.5f, 0.0f,
+			 0.5f,  0.5f, 0.0f,
+			-0.5f,  0.5f, 0.0f
 		};
 		std::shared_ptr<RoMan::VertexBuffer> squareVB;
 		squareVB.reset(RoMan::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
@@ -63,6 +65,7 @@ public:
 			layout(location = 1) in vec4 a_Color;
 
 			uniform mat4 u_ViewProjection;
+			uniform mat4 u_Transform;
 
 			out vec3 v_Position;
 			out vec4 v_Color;
@@ -71,7 +74,7 @@ public:
 			{
 				v_Position = a_Position;
 				v_Color = a_Color;
-				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);	
+				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);	
 			}
 		)";
 
@@ -97,6 +100,7 @@ public:
 			layout(location = 0) in vec3 a_Position;
 
 			uniform mat4 u_ViewProjection;
+			uniform mat4 u_Transform;
 
 			out vec3 v_Position;
 
@@ -104,7 +108,7 @@ public:
 			void main()
 			{
 					v_Position = a_Position;
-					gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
+					gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
 			}
 		)";
 
@@ -150,7 +154,17 @@ public:
 
 		RoMan::Renderer::BeginScene(m_Camera);
 
-		RoMan::Renderer::Submit(m_BlueShader, m_SquareVA);
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+		for (int x = 0; x < 20; x++)
+		{
+			for (int y = 0; y < 20; y++)
+			{
+				glm::vec3 pos(x * 0.11f, y * 0.11f, 0.0f);
+				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
+				RoMan::Renderer::Submit(m_BlueShader, m_SquareVA, transform);
+			}
+		}
+
 		RoMan::Renderer::Submit(m_Shader, m_VertexArray);
 
 		RoMan::Renderer::EndScene();
