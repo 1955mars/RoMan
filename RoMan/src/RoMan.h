@@ -23,6 +23,8 @@
 #include "RoMan/Renderer/Shader.h"
 #include "RoMan/Renderer/VertexArray.h"
 
+#include "RoMan/Renderer/Texture.h"
+
 //------------Camera---------------------------
 
 #include "RoMan/Renderer/OrthographicCamera.h"
