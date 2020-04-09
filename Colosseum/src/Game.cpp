@@ -169,6 +169,7 @@ public:
 		m_TextureShader.reset(RoMan::Shader::Create(textureShaderVertexSrc, textureShaderFragmentSrc));
 
 		m_Texture = RoMan::Texture2D::Create("assets/textures/Checkerboard.png");
+		m_RITlogoTexture = RoMan::Texture2D::Create("assets/textures/RITlogo.png");
 
 		std::dynamic_pointer_cast<RoMan::OpenGLShader>(m_TextureShader)->Bind();
 		std::dynamic_pointer_cast<RoMan::OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", 0);
@@ -218,6 +219,9 @@ public:
 		m_Texture->Bind();
 		RoMan::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
+		m_RITlogoTexture->Bind();
+		RoMan::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+
 		//Triangle
 		RoMan::Renderer::Submit(m_Shader, m_VertexArray);
 
@@ -243,7 +247,7 @@ private:
 	RoMan::Ref<RoMan::Shader> m_FlatColorShader, m_TextureShader;
 	RoMan::Ref<RoMan::VertexArray> m_SquareVA;
 
-	RoMan::Ref<RoMan::Texture2D> m_Texture;
+	RoMan::Ref<RoMan::Texture2D> m_Texture, m_RITlogoTexture;
 
 	RoMan::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition;
