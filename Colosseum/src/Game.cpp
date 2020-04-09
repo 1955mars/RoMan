@@ -95,7 +95,7 @@ public:
 				color = v_Color;
 			}
 		)";
-		m_Shader.reset(RoMan::Shader::Create(vertexSrc, fragmentSrc));
+		m_Shader = RoMan::Shader::Create("VertexPosColr", vertexSrc, fragmentSrc);
 
 		std::string flatColorShaderVertexSrc = R"(
 			#version 330 core
@@ -130,15 +130,15 @@ public:
 			}
 		)";
 
-		m_FlatColorShader.reset(RoMan::Shader::Create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
+		m_FlatColorShader = RoMan::Shader::Create("FlatColor", flatColorShaderVertexSrc, flatColorShaderFragmentSrc);
 
-		m_TextureShader.reset(RoMan::Shader::Create("assets/shaders/Texture.glsl"));
+		auto textureShader = m_ShaderLibrary.Load("assets/shaders/Texture.glsl");
 
 		m_Texture = RoMan::Texture2D::Create("assets/textures/Checkerboard.png");
 		m_RITlogoTexture = RoMan::Texture2D::Create("assets/textures/RITlogo.png");
 
-		std::dynamic_pointer_cast<RoMan::OpenGLShader>(m_TextureShader)->Bind();
-		std::dynamic_pointer_cast<RoMan::OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", 0);
+		std::dynamic_pointer_cast<RoMan::OpenGLShader>(textureShader)->Bind();
+		std::dynamic_pointer_cast<RoMan::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
 	}
 
 	void OnUpdate(RoMan::Timestep ts) override
@@ -182,11 +182,13 @@ public:
 			}
 		}
 
+		auto textureShader = m_ShaderLibrary.Get("Texture");
+
 		m_Texture->Bind();
-		RoMan::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		RoMan::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
 		m_RITlogoTexture->Bind();
-		RoMan::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		RoMan::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
 		//Triangle
 		RoMan::Renderer::Submit(m_Shader, m_VertexArray);
@@ -207,10 +209,12 @@ public:
 	}
 
 private:
+	RoMan::ShaderLibrary m_ShaderLibrary;
+
 	RoMan::Ref<RoMan::Shader> m_Shader;
 	RoMan::Ref<RoMan::VertexArray> m_VertexArray;
 
-	RoMan::Ref<RoMan::Shader> m_FlatColorShader, m_TextureShader;
+	RoMan::Ref<RoMan::Shader> m_FlatColorShader;
 	RoMan::Ref<RoMan::VertexArray> m_SquareVA;
 
 	RoMan::Ref<RoMan::Texture2D> m_Texture, m_RITlogoTexture;
