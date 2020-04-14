@@ -13,7 +13,7 @@ class ExampleLayer : public RoMan::Layer
 {
 public:
 	ExampleLayer()
-		: Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f), m_CameraPosition(0.0f)
+		: Layer("Example"), m_Camera(glm::perspectiveFov(glm::radians(45.0f), 1280.0f, 720.0f, 0.1f, 10000.0f))
 	{
 		m_VertexArray.reset(RoMan::VertexArray::Create());
 
@@ -143,27 +143,29 @@ public:
 
 	void OnUpdate(RoMan::Timestep ts) override
 	{
-		if (RoMan::Input::IsKeyPressed(RM_KEY_LEFT))
-			m_CameraPosition.x -= m_CameraMoveSpeed * ts;
-		else if (RoMan::Input::IsKeyPressed(RM_KEY_RIGHT))
-			m_CameraPosition.x += m_CameraMoveSpeed * ts;
+		//if (RoMan::Input::IsKeyPressed(RM_KEY_LEFT))
+		//	m_CameraPosition.x -= m_CameraMoveSpeed * ts;
+		//else if (RoMan::Input::IsKeyPressed(RM_KEY_RIGHT))
+		//	m_CameraPosition.x += m_CameraMoveSpeed * ts;
 
-		if (RoMan::Input::IsKeyPressed(RM_KEY_UP))
-			m_CameraPosition.y += m_CameraMoveSpeed * ts;
-		else if (RoMan::Input::IsKeyPressed(RM_KEY_DOWN))
-			m_CameraPosition.y -= m_CameraMoveSpeed * ts;
+		//if (RoMan::Input::IsKeyPressed(RM_KEY_UP))
+		//	m_CameraPosition.y += m_CameraMoveSpeed * ts;
+		//else if (RoMan::Input::IsKeyPressed(RM_KEY_DOWN))
+		//	m_CameraPosition.y -= m_CameraMoveSpeed * ts;
 
-		if (RoMan::Input::IsKeyPressed(RM_KEY_Z))
-			m_CameraRotation += m_CameraRotationspeed * ts;
-		else if (RoMan::Input::IsKeyPressed(RM_KEY_X))
-			m_CameraRotation -= m_CameraRotationspeed * ts;
+		//if (RoMan::Input::IsKeyPressed(RM_KEY_Z))
+		//	m_CameraRotation += m_CameraRotationspeed * ts;
+		//else if (RoMan::Input::IsKeyPressed(RM_KEY_X))
+		//	m_CameraRotation -= m_CameraRotationspeed * ts;
 
 
-		RoMan::RenderCommand::SetClearColor({ 0.1, 0.1, 0.1, 1 });
+		RoMan::RenderCommand::SetClearColor({ 0.9, 0.9, 0.9, 1 });
 		RoMan::RenderCommand::Clear();
 
-		m_Camera.SetPosition(m_CameraPosition);
-		m_Camera.SetRotation(m_CameraRotation);
+		//m_CameraOrtho.SetPosition(m_CameraPosition);
+		//m_CameraOrtho.SetRotation(m_CameraRotation);
+
+		m_Camera.Update();
 
 		RoMan::Renderer::BeginScene(m_Camera);
 
@@ -219,12 +221,14 @@ private:
 
 	RoMan::Ref<RoMan::Texture2D> m_Texture, m_RITlogoTexture;
 
-	RoMan::OrthographicCamera m_Camera;
-	glm::vec3 m_CameraPosition;
-	float m_CameraMoveSpeed = 2.5f;
+	RoMan::Camera m_Camera;
+	//RoMan::OrthographicCamera m_CameraOrtho;
 
-	float m_CameraRotation = 0.0f;
-	float m_CameraRotationspeed = 10.0f;
+	//glm::vec3 m_CameraPosition;
+	//float m_CameraMoveSpeed = 2.5f;
+
+	//float m_CameraRotation = 0.0f;
+	//float m_CameraRotationspeed = 10.0f;
 
 	glm::vec3 m_SquareColor = { 0.2f, 0.3f, 0.8f };
 };

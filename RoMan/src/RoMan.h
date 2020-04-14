@@ -27,6 +27,7 @@
 
 //------------Camera---------------------------
 
+#include "RoMan/Renderer/Camera.h"
 #include "RoMan/Renderer/OrthographicCamera.h"
 
 //-------Entry Point------------
