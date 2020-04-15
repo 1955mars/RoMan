@@ -25,6 +25,8 @@
 
 #include "RoMan/Renderer/Texture.h"
 
+#include "RoMan/Renderer/Mesh.h"
+
 //------------Camera---------------------------
 
 #include "RoMan/Renderer/Camera.h"

@@ -139,6 +139,8 @@ public:
 
 		std::dynamic_pointer_cast<RoMan::OpenGLShader>(textureShader)->Bind();
 		std::dynamic_pointer_cast<RoMan::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
+
+		m_SphereMesh.reset(new RoMan::Mesh("assets/meshes/Sphere1m.fbx"));
 	}
 
 	void OnUpdate(RoMan::Timestep ts) override
@@ -169,31 +171,32 @@ public:
 
 		RoMan::Renderer::BeginScene(m_Camera);
 
-		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+		//glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 
 		std::dynamic_pointer_cast<RoMan::OpenGLShader>(m_FlatColorShader)->Bind();
 		std::dynamic_pointer_cast<RoMan::OpenGLShader>(m_FlatColorShader)->UploadUniformFloat3("u_Color", m_SquareColor);
 
-		for (int x = 0; x < 20; x++)
-		{
-			for (int y = 0; y < 20; y++)
-			{
-				glm::vec3 pos(x * 0.11f, y * 0.11f, 0.0f);
-				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
-				RoMan::Renderer::Submit(m_FlatColorShader, m_SquareVA, transform);
-			}
-		}
+		//for (int x = 0; x < 20; x++)
+		//{
+		//	for (int y = 0; y < 20; y++)
+		//	{
+		//		glm::vec3 pos(x * 0.11f, y * 0.11f, 0.0f);
+		//		glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
+		//		RoMan::Renderer::Submit(m_FlatColorShader, m_SquareVA, transform);
+		//	}
+		//}
 
 		auto textureShader = m_ShaderLibrary.Get("Texture");
 
-		m_Texture->Bind();
-		RoMan::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		//m_Texture->Bind();
+		//RoMan::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
-		m_RITlogoTexture->Bind();
-		RoMan::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		//m_RITlogoTexture->Bind();
+		//RoMan::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
 		//Triangle
-		RoMan::Renderer::Submit(m_Shader, m_VertexArray);
+		//RoMan::Renderer::Submit(m_Shader, m_VertexArray);
+		RoMan::Renderer::Submit(textureShader, m_SphereMesh->GetVertexArray());
 
 		RoMan::Renderer::EndScene();
 	}
@@ -212,6 +215,8 @@ public:
 
 private:
 	RoMan::ShaderLibrary m_ShaderLibrary;
+
+	RoMan::Ref<RoMan::Mesh> m_SphereMesh;
 
 	RoMan::Ref<RoMan::Shader> m_Shader;
 	RoMan::Ref<RoMan::VertexArray> m_VertexArray;

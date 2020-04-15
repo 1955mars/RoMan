@@ -22,6 +22,7 @@ IncludeDir["Glad"] = "RoMan/vendor/Glad/include"
 IncludeDir["ImGui"] = "RoMan/vendor/imgui"
 IncludeDir["glm"] = "RoMan/vendor/glm"
 IncludeDir["stb_image"] = "RoMan/vendor/stb_image"
+IncludeDir["assimp"] = "RoMan/vendor/assimp/include"
 
 
 group "Dependencies"
@@ -67,7 +68,8 @@ project "RoMan"
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.stb_image}"
+		"%{IncludeDir.stb_image}",
+		"%{IncludeDir.assimp}"
 	}
 
 	links 
@@ -147,12 +149,43 @@ project "Colosseum"
 		runtime "Debug"
 		symbols "on"
 
+		links
+		{
+			"RoMan/vendor/assimp/bin/Debug/assimp-vc141-mtd.lib"
+		}
+
+		postbuildcommands 
+		{
+			'{COPY} "../RoMan/vendor/assimp/bin/Debug/assimp-vc141-mtd.dll" "%{cfg.targetdir}"'
+		}
+
 	filter "configurations:Release"
 		defines "RM_RELEASE"
 		runtime "Release"
 		optimize "on"
 
+		links
+		{
+			"RoMan/vendor/assimp/bin/Debug/assimp-vc141-mtd.lib"
+		}
+
+		postbuildcommands 
+		{
+			'{COPY} "../RoMan/vendor/assimp/bin/Debug/assimp-vc141-mtd.dll" "%{cfg.targetdir}"'
+		}
+
+
 	filter "configurations:Dist"
 		defines "RM_DIST"
 		runtime "Release"
 		optimize "on"
+
+		links
+		{
+			"RoMan/vendor/assimp/bin/Debug/assimp-vc141-mtd.lib"
+		}
+
+		postbuildcommands 
+		{
+			'{COPY} "../RoMan/vendor/assimp/bin/Debug/assimp-vc141-mtd.dll" "%{cfg.targetdir}"'
+		}
