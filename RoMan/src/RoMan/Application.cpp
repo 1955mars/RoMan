@@ -23,12 +23,13 @@ namespace RoMan
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
-
-		Renderer::Init();
+		m_Window->SetVSync(false);
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
 
+		Renderer::Init();
+		Renderer::Get().WaitAndRender();
 	}
 
 	void Application::PushLayer(Layer* layer)
@@ -56,6 +57,8 @@ namespace RoMan
 			for (Layer* layer : m_LayerStack)
 				layer->OnImGuiRender();
 			m_ImGuiLayer->End();
+
+			Renderer::Get().WaitAndRender();
 
 			m_Window->OnUpdate();
 		}

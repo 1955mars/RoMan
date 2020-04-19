@@ -1,5 +1,7 @@
 #pragma once
 
+#include "RoMan/Core/Timestep.h"
+
 #include <glm/glm.hpp>
 
 namespace RoMan
@@ -10,12 +12,13 @@ namespace RoMan
 		Camera(const glm::mat4& projectionMatrix);
 
 		void Focus();
-		void Update();
+		void Update(Timestep ts);
 
 		inline float GetDistance() const { return m_Distance; }
 		inline float SetDistance(float distance) { m_Distance = distance; }
 
 		inline void SetProjectionMatrix(glm::mat4& projectionMatrix) { m_ProjectionMatrix = projectionMatrix; }
+		inline void SetViewportSize(uint32_t width, uint32_t height) { m_ViewportWidth = width; m_ViewportHeight = height; }
 
 		const glm::mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
 		const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
@@ -35,6 +38,9 @@ namespace RoMan
 		glm::vec3 CalculatePosition();
 		glm::quat GetOrientation();
 
+		std::pair<float, float> PanSpeed() const;
+		float RotationSpeed() const;
+		float ZoomSpeed() const;
 	private:
 		glm::mat4 m_ProjectionMatrix;
 		glm::mat4 m_ViewMatrix;
@@ -55,5 +61,7 @@ namespace RoMan
 		float m_PanSpeed, m_RotationSpeed, m_ZoomSpeed;
 
 		float m_Pitch, m_Yaw;
+
+		uint32_t m_ViewportWidth = 1280, m_ViewportHeight = 720;
 	};
 }

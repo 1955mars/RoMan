@@ -24,6 +24,7 @@
 #include "RoMan/Renderer/VertexArray.h"
 
 #include "RoMan/Renderer/Texture.h"
+#include "RoMan/Renderer/FrameBuffer.h"
 
 #include "RoMan/Renderer/Mesh.h"
 

@@ -6,39 +6,54 @@
 
 namespace RoMan
 {
+	std::vector<Ref<Shader>> Shader::s_AllShaders;
+
 	Ref<Shader> Shader::Create(const std::string& filepath)
 	{
+		Ref<Shader> result = nullptr;
+
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None:
-			RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");
-			return nullptr;
+			case RendererAPI::API::None:
+				RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");
+				return nullptr;
 
-		case RendererAPI::API::OpenGL:
-			return  std::make_shared<OpenGLShader>(filepath);
-
+			case RendererAPI::API::OpenGL:
+				result =  std::make_shared<OpenGLShader>(filepath);
 		}
 
-		RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");
+		RM_CORE_ASSERT(result, "Renderer API is not supported by RoMan Engine");
 
-		return nullptr;
+		s_AllShaders.push_back(result);
+		return result;
 	}
 
-	Ref<Shader> Shader::Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
+	Ref<Shader> Shader::CreateFromString(const std::string& source)
 	{
+		Ref<Shader> result = nullptr;
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None:
-			RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");
-			return nullptr;
+			case RendererAPI::API::None:
+				RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");
+				return nullptr;
 
-		case RendererAPI::API::OpenGL:
-			return std::make_shared<OpenGLShader>(name, vertexSrc, fragmentSrc);
+			case RendererAPI::API::OpenGL:
+				result = OpenGLShader::CreateFromString(source);
 
 		}
 
 		RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");
-		return nullptr;
+
+		s_AllShaders.push_back(result);
+		return result;
+	}
+
+	ShaderLibrary::ShaderLibrary()
+	{
+	}
+
+	ShaderLibrary::~ShaderLibrary()
+	{
 	}
 
 	void ShaderLibrary::Add(const std::string& name, const Ref<Shader>& shader)

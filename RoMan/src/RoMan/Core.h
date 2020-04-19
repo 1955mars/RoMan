@@ -39,4 +39,6 @@ namespace RoMan
 
 	template<typename T>
 	using Ref = std::shared_ptr<T>;
+
+	using byte = unsigned char;
 }

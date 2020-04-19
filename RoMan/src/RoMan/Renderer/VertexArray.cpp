@@ -6,7 +6,7 @@
 
 namespace RoMan
 {
-	VertexArray* VertexArray::Create()
+	Ref<VertexArray> VertexArray::Create()
 	{
 		switch (Renderer::GetAPI())
 		{
@@ -14,8 +14,8 @@ namespace RoMan
 			RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");
 			return nullptr;
 
-		case RendererAPI::API::OpenGL: 
-			return new OpenGLVertexArray();
+		case RendererAPI::API::OpenGL:
+			return std::make_shared<OpenGLVertexArray>();
 				
 		}
 
