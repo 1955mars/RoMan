@@ -1,20 +1,20 @@
 #pragma once
 
-#include <iostream>
+#ifdef HZ_PLATFORM_WINDOWS
+#include <Windows.h>
+#endif
+
 #include <memory>
+#include <vector>
+#include <string>
+#include <array>
+#include <unordered_map>
 #include <functional>
 #include <algorithm>
-#include <utility>
 
-#include <string>
-#include <sstream>
-#include <array>
-#include <vector>
-#include <unordered_map>
-#include <unordered_set>
+#include <fstream>
 
-#include "RoMan/Log.h"
+#include <RoMan/Core.h>
+#include <RoMan/Log.h>
+#include <RoMan/Events/Event.h>
 
-#ifdef RM_PLATFORM_WINDOWS
-	#include <Windows.h>
-#endif

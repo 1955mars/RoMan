@@ -6,32 +6,48 @@
 
 namespace RoMan
 {
-	Ref<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
+	Ref<VertexBuffer> VertexBuffer::Create(void* data, uint32_t size, VertexBufferUsage usage)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererAPI::GetAPI())
 		{
 		case RendererAPI::API::None:
 			RM_CORE_ASSERT(false, "RenderAPI::None is currently not supported!");
 			return nullptr;
 		
 		case RendererAPI::API::OpenGL:
-			return std::make_shared<OpenGLVertexBuffer>(vertices, size);
+			return std::make_shared<OpenGLVertexBuffer>(data, size, usage);
 		}
 
 		RM_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
 	}
 
-	Ref<IndexBuffer> IndexBuffer::Create(uint32_t* indices, uint32_t count)
+	Ref<VertexBuffer> VertexBuffer::Create(uint32_t size, VertexBufferUsage usage)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererAPI::GetAPI())
 		{
 		case RendererAPI::API::None:
 			RM_CORE_ASSERT(false, "RenderAPI::None is currently not supported!");
 			return nullptr;
 
 		case RendererAPI::API::OpenGL:
-			return std::make_shared<OpenGLIndexBuffer>(indices, count);
+			return std::make_shared<OpenGLVertexBuffer>(size, usage);
+		}
+
+		RM_CORE_ASSERT(false, "Unknown RenderAPI!");
+		return nullptr;
+	}
+
+	Ref<IndexBuffer> IndexBuffer::Create(void* data, uint32_t size)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+			RM_CORE_ASSERT(false, "RenderAPI::None is currently not supported!");
+			return nullptr;
+
+		case RendererAPI::API::OpenGL:
+			return std::make_shared<OpenGLIndexBuffer>(data, size);
 		}
 
 		RM_CORE_ASSERT(false, "Unknown RenderAPI!");

@@ -1,30 +1,73 @@
 #include "rmpch.h"
 #include "Renderer.h"
 
-#include "Shader.h"
+#include <glad/glad.h>
 
 namespace RoMan
 {
-	Renderer::SceneData* Renderer::s_SceneData = new Renderer::SceneData;
-	Renderer* Renderer::s_Instance = new Renderer();
+
+	struct RendererData
+	{
+		Ref<RenderPass> m_ActiveRenderPass;
+		RenderCommandQueue m_CommandQueue;
+		Scope<ShaderLibrary> m_ShaderLibrary;
+		Ref<VertexArray> m_FullscreenQuadVertexArray;
+	};
+
+	static RendererData s_Data;
 
 	void Renderer::Init()
 	{
-		s_Instance->m_ShaderLibrary = std::make_unique<ShaderLibrary>();
+		s_Data.m_ShaderLibrary = std::make_unique<ShaderLibrary>();
 		RM_RENDER({ RendererAPI::Init(); });
 
-		//RenderCommand::Init();
-		Renderer::GetShaderLibrary()->Load("assets/shaders/HazelPBRStatic.glsl");
+		Renderer::GetShaderLibrary()->Load("assets/shaders/Shader.glsl");
+
+		SceneRenderer::Init();
+
+		//// Create fullscreen quad
+		//float x = -1;
+		//float y = -1;
+		//float width = 2, height = 2;
+		//struct QuadVertex
+		//{
+		//	glm::vec3 Position;
+		//	glm::vec2 TexCoord;
+		//};
+
+		//QuadVertex* data = new QuadVertex[4];
+
+		//data[0].Position = glm::vec3(x, y, 0);
+		//data[0].TexCoord = glm::vec2(0, 0);
+
+		//data[1].Position = glm::vec3(x + width, y, 0);
+		//data[1].TexCoord = glm::vec2(1, 0);
+
+		//data[2].Position = glm::vec3(x + width, y + height, 0);
+		//data[2].TexCoord = glm::vec2(1, 1);
+
+		//data[3].Position = glm::vec3(x, y + height, 0);
+		//data[3].TexCoord = glm::vec2(0, 1);
+
+		//s_Data.m_FullscreenQuadVertexArray = VertexArray::Create();
+		//auto quadVB = VertexBuffer::Create((float*)data, 4 * sizeof(QuadVertex));
+		//quadVB->SetLayout({
+		//	{ ShaderDataType::Float3, "a_Position" },
+		//	{ ShaderDataType::Float2, "a_TexCoord" }
+		//	});
+
+		//uint32_t indices[6] = { 0, 1, 2, 2, 3, 0, };
+		//auto quadIB = IndexBuffer::Create(indices, 6 * sizeof(uint32_t));
+
+		//s_Data.m_FullscreenQuadVertexArray->AddVertexBuffer(quadVB);
+		//s_Data.m_FullscreenQuadVertexArray->SetIndexBuffer(quadIB);
 	}
 
-	void Renderer::BeginScene(Camera& camera)
+	const Scope<ShaderLibrary>& Renderer::GetShaderLibrary()
 	{
-		s_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+		return s_Data.m_ShaderLibrary;
 	}
 
-	void Renderer::EndScene()
-	{
-	}
 
 	void Renderer::Clear()
 	{
@@ -58,17 +101,97 @@ namespace RoMan
 
 	void Renderer::WaitAndRender()
 	{
-		s_Instance->m_CommandQueue.Execute();
+		s_Data.m_CommandQueue.Execute();
 	}
 
+	void Renderer::BeginRenderPass(const Ref<RenderPass>& renderPass)
+	{
+		RM_CORE_ASSERT(renderPass, "Render pass cannot be null!");
 
-	//void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform)
-	//{
-	//	//shader->Bind();
-	//	////std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMatrix4("u_ViewProjection", s_SceneData->ViewProjectionMatrix);
-	//	////std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMatrix4("u_Transform", transform);
+		// TODO: Convert all of this into a render command buffer
+		s_Data.m_ActiveRenderPass = renderPass;
 
-	//	//vertexArray->Bind();
-	//	//RenderCommand::DrawIndexed(vertexArray);
-	//}
+		renderPass->GetSpecification().TargetFramebuffer->Bind();
+		const glm::vec4& clearColor = renderPass->GetSpecification().TargetFramebuffer->GetSpecification().ClearColor;
+		RM_RENDER_1(clearColor,{
+			RendererAPI::Clear(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+		});
+	}
+
+	void Renderer::EndRenderPass()
+	{
+		RM_CORE_ASSERT(s_Data.m_ActiveRenderPass, "No active render pass! Have you called Renderer::EndRenderPass twice?");
+		s_Data.m_ActiveRenderPass->GetSpecification().TargetFramebuffer->Unbind();
+		s_Data.m_ActiveRenderPass = nullptr;
+	}
+
+	void Renderer::SubmitQuad(const Ref<MaterialInstance>& material, const glm::mat4& transform)
+	{
+		bool depthTest = true;
+		if (material)
+		{
+			material->Bind();
+			depthTest = material->GetFlag(MaterialFlag::DepthTest);
+
+			auto shader = material->GetShader();
+			shader->SetMat4("u_Transform", transform);
+		}
+
+		s_Data.m_FullscreenQuadVertexArray->Bind();
+		Renderer::DrawIndexed(6, depthTest);
+	}
+
+	void Renderer::SubmitFullscreenQuad(const Ref<MaterialInstance>& material)
+	{
+		bool depthTest = true;
+		if (material)
+		{
+			material->Bind();
+			depthTest = material->GetFlag(MaterialFlag::DepthTest);
+		}
+
+		s_Data.m_FullscreenQuadVertexArray->Bind();
+		Renderer::DrawIndexed(6, depthTest);
+	}
+
+	void Renderer::SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform, const Ref<MaterialInstance>& overrideMaterial)
+	{
+		// auto material = overrideMaterial ? overrideMaterial : mesh->GetMaterialInstance();
+		// auto shader = material->GetShader();
+
+		// TODO: Sort this out
+		mesh->m_VertexArray->Bind();
+
+		auto& materials = mesh->GetMaterials();
+		for (SubMesh& submesh : mesh->m_SubMeshes)
+		{
+			// Material
+			auto material = materials[submesh.MaterialIndex];
+			auto shader = material->GetShader();
+			material->Bind();
+
+			//TODO: Animation related
+
+			//shader->SetMat4("u_Transform", transform * submesh.Transform);
+
+			RM_RENDER_2(submesh, material, {
+				if (material->GetFlag(MaterialFlag::DepthTest))
+					glEnable(GL_DEPTH_TEST);
+				else
+					glDisable(GL_DEPTH_TEST);
+
+				glDrawElementsBaseVertex(GL_TRIANGLES, submesh.IndexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint32_t) * submesh.BaseIndex), submesh.BaseVertex);
+			});
+		}
+	}
+
+	RenderCommandQueue& Renderer::GetRenderCommandQueue()
+	{
+		return s_Data.m_CommandQueue;
+	}
+
+	void* Renderer::Submit(RenderCommandFn fn, unsigned int size)
+	{
+		return s_Data.m_CommandQueue.Allocate(fn, size);
+	}
 }

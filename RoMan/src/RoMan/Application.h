@@ -19,14 +19,25 @@
 
 namespace RoMan
 {
+	struct ApplicationProps
+	{
+		std::string Name;
+		uint32_t WindowWidth, WindowHeight;
+	};
+
 	class ROMAN_API Application
 	{
 	public:
-		Application();
-		virtual ~Application() = default;
+		Application(const ApplicationProps& props = { "RoMan Engine", 1280, 720 });
+		virtual ~Application();
 		void Run();
 
+		virtual void OnInit() {}
+		virtual void OnShutDown() {}
+		virtual void OnUpdate(Timestep ts) {}
+
 		void OnEvent(Event& e);
+
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
 
@@ -35,6 +46,7 @@ namespace RoMan
 		inline static Application& Get() { return *s_Instance; }
 
 	private:
+		bool OnWindowResize(WindowResizeEvent& e);
 		bool OnWindowClose(WindowCloseEvent& e);
 
 		std::unique_ptr<Window> m_Window;

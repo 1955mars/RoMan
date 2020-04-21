@@ -8,7 +8,7 @@ namespace RoMan
 {
 	Ref<Texture2D> Texture2D::Create(TextureFormat format, unsigned int width, unsigned int height, TextureWrap wrap)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererAPI::GetAPI())
 		{
 		case RendererAPI::API::None:
 			RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");
@@ -25,7 +25,7 @@ namespace RoMan
 
 	Ref<Texture2D> Texture2D::Create(const std::string& path, bool srgb)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererAPI::GetAPI())
 		{
 		case RendererAPI::API::None:
 			RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");
@@ -40,9 +40,26 @@ namespace RoMan
 		return nullptr;
 	}
 
+	Ref<TextureCube> TextureCube::Create(TextureFormat format, uint32_t width, uint32_t height)
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::None:
+			RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");
+			return nullptr;
+
+		case RendererAPI::API::OpenGL:
+			return  std::make_shared<OpenGLTextureCube>(format, width, height);
+
+		}
+
+		RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");
+		return nullptr;
+	}
+
 	Ref<TextureCube> TextureCube::Create(const std::string& path)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererAPI::GetAPI())
 		{
 		case RendererAPI::API::None:
 			RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");
@@ -65,5 +82,13 @@ namespace RoMan
 		case TextureFormat::RGBA:   return 4;
 		}
 		return 0;
+	}
+	uint32_t Texture::CalculateMipMapCount(uint32_t width, uint32_t height)
+	{
+		uint32_t levels = 1;
+		while ((width | height) >> levels)
+			levels++;
+
+		return levels;
 	}
 }

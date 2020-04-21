@@ -1,5 +1,7 @@
 #pragma once
 
+#include "RendererAPI.h"
+
 namespace RoMan
 {
 	enum class ShaderDataType
@@ -103,32 +105,45 @@ namespace RoMan
 		uint32_t m_Stride = 0;
 	};
 
+	enum class VertexBufferUsage
+	{
+		None = 0, Static = 1, Dynamic = 2
+	};
 
 	class VertexBuffer
 	{
 	public:
-		virtual ~VertexBuffer() = default;
+		virtual ~VertexBuffer() {}
 
+		virtual void SetData(void* buffer, uint32_t size, uint32_t offset = 0) = 0;
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
 
 		virtual const BufferLayout& GetLayout() const = 0;
 		virtual void SetLayout(const BufferLayout& layout) = 0;
 
-		static Ref<VertexBuffer> Create(float* vertices, uint32_t size);
+		virtual unsigned int GetSize() const = 0;
+		virtual RendererID GetRendererID() const = 0;
+
+		static Ref<VertexBuffer> Create(void* data, uint32_t size, VertexBufferUsage usage = VertexBufferUsage::Static);
+		static Ref<VertexBuffer> Create(uint32_t size, VertexBufferUsage usage = VertexBufferUsage::Dynamic);
 	};
 
 	class IndexBuffer
 	{
 	public:
-		virtual ~IndexBuffer() = default;
+	public:
+		virtual ~IndexBuffer() {}
 
+		virtual void SetData(void* buffer, uint32_t size, uint32_t offset = 0) = 0;
 		virtual void Bind() const = 0;
-		virtual void UnBind() const = 0;
 
 		virtual uint32_t GetCount() const = 0;
 
-		static Ref<IndexBuffer> Create(uint32_t* vertices, uint32_t size);
+		virtual unsigned int GetSize() const = 0;
+		virtual RendererID GetRendererID() const = 0;
+
+		static Ref<IndexBuffer> Create(void* data, uint32_t size = 0);
 	};
 }
 

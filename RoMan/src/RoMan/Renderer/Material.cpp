@@ -189,4 +189,12 @@ namespace RoMan {
 		}
 	}
 
+	void MaterialInstance::SetFlag(MaterialFlag flag, bool value)
+	{
+		if (value)
+			m_Material->m_MaterialFlags |= (uint32_t)flag;
+		else
+			m_Material->m_MaterialFlags &= ~(uint32_t)flag;
+	}
+
 }

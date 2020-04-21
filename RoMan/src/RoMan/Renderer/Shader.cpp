@@ -12,7 +12,7 @@ namespace RoMan
 	{
 		Ref<Shader> result = nullptr;
 
-		switch (Renderer::GetAPI())
+		switch (RendererAPI::GetAPI())
 		{
 			case RendererAPI::API::None:
 				RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");
@@ -31,7 +31,7 @@ namespace RoMan
 	Ref<Shader> Shader::CreateFromString(const std::string& source)
 	{
 		Ref<Shader> result = nullptr;
-		switch (Renderer::GetAPI())
+		switch (RendererAPI::GetAPI())
 		{
 			case RendererAPI::API::None:
 				RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");

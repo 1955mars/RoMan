@@ -1,6 +1,6 @@
 #pragma once
 #include "OpenGLShaderUniform.h"
-
+#include "RoMan/Renderer/Renderer.h"
 #include "RoMan/Renderer/Shader.h"
 #include "glm/glm.hpp"
 #include "glm/glm.hpp"
@@ -21,7 +21,8 @@ namespace RoMan
 		virtual void Reload() override;
 		virtual void AddShaderReloadedCallback(const ShaderReloadedCallback& callback) override;
 
-		void Bind() const;
+		void Bind() const override;
+		virtual RendererID GetRendererID() const override { return m_RendererID; }
 		void UnBind() const;
 
 		virtual void UploadUniformBuffer(const UniformBufferBase& uniformBuffer) override;
@@ -37,6 +38,8 @@ namespace RoMan
 
 		inline const ShaderUniformBufferList& GetVSRendererUniforms() const override { return m_VSRendererUniformBuffers; }
 		inline const ShaderUniformBufferList& GetFSRendererUniforms() const override { return m_FSRendererUniformBuffers; }
+		virtual bool HasVSMaterialUniformBuffer() const override { return (bool)m_VSMaterialUniformBuffer; }
+		virtual bool HasPSMaterialUniformBuffer() const override { return (bool)m_FSMaterialUniformBuffer; }
 		inline const ShaderUniformBufferDeclaration& GetVSMaterialUniformBuffer() const override { return *m_VSMaterialUniformBuffer; }
 		inline const ShaderUniformBufferDeclaration& GetFSMaterialUniformBuffer() const override { return *m_FSMaterialUniformBuffer; }
 		inline const ShaderResourceList& GetResources() const override { return m_Resources; }
@@ -88,6 +91,7 @@ namespace RoMan
 	private:
 		uint32_t m_RendererID = 0;
 		bool m_Loaded = false;
+		bool m_IsCompute = false;
 
 		std::string m_Name, m_AssetPath;
 		std::unordered_map<GLenum, std::string> m_ShaderSource;

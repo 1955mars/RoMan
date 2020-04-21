@@ -17,6 +17,10 @@ namespace RoMan
 		virtual uint32_t GetWidth() const override { return m_Width; }
 		virtual uint32_t GetHeight() const override { return m_Height; }
 
+		// This function currently returns the expected number of mips based on image size,
+		// not present mips in data
+		virtual uint32_t GetMipLevelCount() const override;
+
 		virtual void Lock() override;
 		virtual void Unlock() override;
 
@@ -24,6 +28,8 @@ namespace RoMan
 		virtual Buffer GetWriteableBuffer() override;
 
 		virtual const std::string& GetPath() const override { return m_FilePath; }
+
+		virtual bool Loaded() const override { return m_Loaded; }
 
 		virtual RendererID GetRendererID() const override { return m_RendererID; }
 	private:
@@ -33,8 +39,10 @@ namespace RoMan
 		uint32_t m_Width, m_Height;
 
 		Buffer m_ImageData;
+		bool IsHDR = false;
 
 		bool m_Locked = false;
+		bool m_Loaded = false;
 
 		std::string m_FilePath;	
 	};
@@ -42,6 +50,7 @@ namespace RoMan
 	class OpenGLTextureCube : public TextureCube
 	{
 	public:
+		OpenGLTextureCube(TextureFormat format, uint32_t width, uint32_t height);
 		OpenGLTextureCube(const std::string& path);
 		virtual ~OpenGLTextureCube();
 
@@ -50,6 +59,10 @@ namespace RoMan
 		virtual TextureFormat GetFormat() const { return m_Format; }
 		virtual unsigned int GetWidth() const { return m_Width; }
 		virtual unsigned int GetHeight() const { return m_Height; }
+
+		// This function currently returns the expected number of mips based on image size,
+		// not present mips in data
+		virtual uint32_t GetMipLevelCount() const override;
 
 		virtual const std::string& GetPath() const override { return m_FilePath; }
 

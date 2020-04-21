@@ -17,6 +17,10 @@
 
 #include "imgui.h"
 
+#include <filesystem>
+
+#include "RoMan/Renderer/Renderer.h"
+
 namespace RoMan {
 
 	static const uint32_t s_MeshImportFlags =
@@ -68,9 +72,9 @@ namespace RoMan {
 		const aiScene* scene = m_Importer->ReadFile(filename, s_MeshImportFlags);
 		if (!scene || !scene->HasMeshes())
 			RM_CORE_ERROR("Failed to load mesh file: {0}", filename);
-
-		m_MeshShader = Renderer::GetShaderLibrary()->Get("HazelPBRStatic");
-		m_Material.reset(new RoMan::Material(m_MeshShader));
+		
+		m_MeshShader = Renderer::GetShaderLibrary()->Get("Shader");
+		m_BaseMaterial.reset(new RoMan::Material(m_MeshShader));
 		m_InverseTransform = glm::inverse(aiMatrix4x4ToGlm(scene->mRootNode->mTransformation));
 
 		uint32_t vertexCount = 0;
@@ -129,11 +133,220 @@ namespace RoMan {
 		TraverseNodes(scene->mRootNode);
 		RM_CORE_TRACE("-----------------------------");
 
+		//TODO: Bones (animations)
+
+		//Materials
+		//if (scene->HasMaterials())
+		//{
+		//	m_Textures.resize(scene->mNumMaterials);
+		//	m_Materials.resize(scene->mNumMaterials);
+		//	for (uint32_t i = 0; i < scene->mNumMaterials; i++)
+		//	{
+		//		auto aiMaterial = scene->mMaterials[i];
+		//		auto aiMaterialName = aiMaterial->GetName();
+
+		//		auto mi = std::make_shared<MaterialInstance>(m_BaseMaterial);
+		//		m_Materials[i] = mi;
+
+		//		RM_CORE_INFO("Material Name = {0}; Index = {1}", aiMaterialName.data, i);
+		//		aiString aiTexPath;
+		//		uint32_t textureCount = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
+		//		RM_CORE_TRACE("     Texture Count = {0}", textureCount);
+
+		//		aiColor3D aiColor;
+		//		aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
+		//		RM_CORE_TRACE("COLOR = {0}, {1}, {2}", aiColor.r, aiColor.g, aiColor.b);
+
+		//		if (aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexPath) == AI_SUCCESS)
+		//		{
+		//			//TODO: Should be handled by the engine's file system
+		//			std::filesystem::path path = filename;
+		//			auto parentPath = path.parent_path();
+		//			parentPath /= std::string(aiTexPath.data);
+		//			std::string texturePath = parentPath.string();
+
+		//			auto texture = Texture2D::Create(texturePath, true);
+		//			if (texture->Loaded())
+		//			{
+		//				m_Textures[i] = texture;
+		//				RM_CORE_TRACE("  Texture Path = {0}", texturePath);
+		//				mi->Set("u_AlbedoTexture", m_Textures[i]);
+		//				mi->Set("u_AlbedoTexToggle", 1.0f);
+		//			}
+		//			else
+		//			{
+		//				RM_CORE_ERROR("Could not load texture: {0}", texturePath);
+		//				mi->Set("u_AlbedoColor", glm::vec3{ aiColor.r, aiColor.g, aiColor.b });
+		//			}
+		//		}
+		//		else
+		//		{
+		//			mi->Set("u_AlbedoTexToggle", 0.0f);
+		//			mi->Set("u_AlbedoColor", glm::vec3{ aiColor.r, aiColor.g, aiColor.b });
+		//		}
+
+		//		for (uint32_t i = 0; i < aiMaterial->mNumProperties; i++)
+		//		{
+		//			auto prop = aiMaterial->mProperties[i];
+		//			RM_CORE_TRACE("Material Property:");
+		//			RM_CORE_TRACE("  Name = {0}", prop->mKey.data);
+
+		//			switch (prop->mSemantic)
+		//			{
+		//			case aiTextureType_NONE:
+		//				RM_CORE_TRACE("  Semantic = aiTextureType_NONE");
+		//				break;
+		//			case aiTextureType_DIFFUSE:
+		//				RM_CORE_TRACE("  Semantic = aiTextureType_DIFFUSE");
+		//				break;
+		//			case aiTextureType_SPECULAR:
+		//				RM_CORE_TRACE("  Semantic = aiTextureType_SPECULAR");
+		//				break;
+		//			case aiTextureType_AMBIENT:
+		//				RM_CORE_TRACE("  Semantic = aiTextureType_AMBIENT");
+		//				break;
+		//			case aiTextureType_EMISSIVE:
+		//				RM_CORE_TRACE("  Semantic = aiTextureType_EMISSIVE");
+		//				break;
+		//			case aiTextureType_HEIGHT:
+		//				RM_CORE_TRACE("  Semantic = aiTextureType_HEIGHT");
+		//				break;
+		//			case aiTextureType_NORMALS:
+		//				RM_CORE_TRACE("  Semantic = aiTextureType_NORMALS");
+		//				break;
+		//			case aiTextureType_SHININESS:
+		//				RM_CORE_TRACE("  Semantic = aiTextureType_SHININESS");
+		//				break;
+		//			case aiTextureType_OPACITY:
+		//				RM_CORE_TRACE("  Semantic = aiTextureType_OPACITY");
+		//				break;
+		//			case aiTextureType_DISPLACEMENT:
+		//				RM_CORE_TRACE("  Semantic = aiTextureType_DISPLACEMENT");
+		//				break;
+		//			case aiTextureType_LIGHTMAP:
+		//				RM_CORE_TRACE("  Semantic = aiTextureType_LIGHTMAP");
+		//				break;
+		//			case aiTextureType_REFLECTION:
+		//				RM_CORE_TRACE("  Semantic = aiTextureType_REFLECTION");
+		//				break;
+		//			case aiTextureType_UNKNOWN:
+		//				RM_CORE_TRACE("  Semantic = aiTextureType_UNKNOWN");
+		//				break;
+		//			}
+
+		//			if (prop->mType == aiPTI_String)
+		//			{
+		//				uint32_t strLength = *(uint32_t*)prop->mData;
+		//				std::string str(prop->mData + 4, strLength);
+		//				RM_CORE_TRACE("  Value = {0}", str);
+
+		//				std::string key = prop->mKey.data;
+		//				if (key == "$raw.ReflectionFactor|file")
+		//				{
+		//					// TODO: Temp - this should be handled by Hazel's filesystem
+		//					std::filesystem::path path = filename;
+		//					auto parentPath = path.parent_path();
+		//					parentPath /= str;
+		//					std::string texturePath = parentPath.string();
+
+		//					auto texture = Texture2D::Create(texturePath);
+		//					if (texture->Loaded())
+		//					{
+		//						RM_CORE_TRACE("  Metalness map path = {0}", texturePath);
+		//						mi->Set("u_MetalnessTexture", texture);
+		//						mi->Set("u_MetalnessTexToggle", 1.0f);
+		//					}
+		//					else
+		//					{
+		//						RM_CORE_TRACE("Could not load texture: {0}", texturePath);
+		//						mi->Set("u_Metalness", 0.5f);
+		//						mi->Set("u_MetalnessTexToggle", 1.0f);
+		//					}
+		//				}
+		//			}
+		//		}
+
+
+		//		// Normal maps
+		//		if (aiMaterial->GetTexture(aiTextureType_NORMALS, 0, &aiTexPath) == AI_SUCCESS)
+		//		{
+		//			// TODO: Temp - this should be handled by Hazel's filesystem
+		//			std::filesystem::path path = filename;
+		//			auto parentPath = path.parent_path();
+		//			parentPath /= std::string(aiTexPath.data);
+		//			std::string texturePath = parentPath.string();
+
+		//			auto texture = Texture2D::Create(texturePath);
+		//			if (texture->Loaded())
+		//			{
+		//				RM_CORE_TRACE("  Normal map path = {0}", texturePath);
+		//				mi->Set("u_NormalTexture", texture);
+		//				mi->Set("u_NormalTexToggle", 1.0f);
+		//			}
+		//			else
+		//			{
+		//				RM_CORE_TRACE("Could not load texture: {0}", texturePath);
+		//				//mi->Set("u_AlbedoTexToggle", 0.0f);
+		//				// mi->Set("u_AlbedoColor", glm::vec3{ color.r, color.g, color.b });
+		//			}
+		//		}
+
+		//		// Roughness map
+		//		if (aiMaterial->GetTexture(aiTextureType_SHININESS, 0, &aiTexPath) == AI_SUCCESS)
+		//		{
+		//			// TODO: Temp - this should be handled by Hazel's filesystem
+		//			std::filesystem::path path = filename;
+		//			auto parentPath = path.parent_path();
+		//			parentPath /= std::string(aiTexPath.data);
+		//			std::string texturePath = parentPath.string();
+
+		//			auto texture = Texture2D::Create(texturePath);
+		//			if (texture->Loaded())
+		//			{
+		//				RM_CORE_TRACE("  Roughness map path = {0}", texturePath);
+		//				mi->Set("u_RoughnessTexture", texture);
+		//				mi->Set("u_RoughnessTexToggle", 1.0f);
+		//			}
+		//			else
+		//			{
+		//				RM_CORE_TRACE("Could not load texture: {0}", texturePath);
+		//				mi->Set("u_RoughnessTexToggle", 1.0f);
+		//				mi->Set("u_Roughness", 0.5f);
+		//			}
+		//		}
+
+		//		// Metalness map
+		//		if (aiMaterial->Get("$raw.ReflectionFactor|file", aiPTI_String, 0, aiTexPath) == AI_SUCCESS)
+		//		{
+		//			// TODO: Temp - this should be handled by Hazel's filesystem
+		//			std::filesystem::path path = filename;
+		//			auto parentPath = path.parent_path();
+		//			parentPath /= std::string(aiTexPath.data);
+		//			std::string texturePath = parentPath.string();
+
+		//			auto texture = Texture2D::Create(texturePath);
+		//			if (texture->Loaded())
+		//			{
+		//				RM_CORE_TRACE("  Metalness map path = {0}", texturePath);
+		//				mi->Set("u_MetalnessTexture", texture);
+		//				mi->Set("u_MetalnessTexToggle", 1.0f);
+		//			}
+		//			else
+		//			{
+		//				RM_CORE_TRACE("Could not load texture: {0}", texturePath);
+		//				mi->Set("u_Metalness", 0.5f);
+		//				mi->Set("u_MetalnessTexToggle", 1.0f);
+		//			}
+		//		}
+
+		//	}
+		//}
+
 
 		m_VertexArray = VertexArray::Create();
 
 		{
-			auto vb = VertexBuffer::Create((float*)m_StaticVertices.data(), m_StaticVertices.size() * sizeof(Vertex));
+			auto vb = VertexBuffer::Create(m_StaticVertices.data(),  m_StaticVertices.size() * sizeof(Vertex));
 			vb->SetLayout({
 				{ ShaderDataType::Float3, "a_Position" },
 				{ ShaderDataType::Float3, "a_Normal" },
@@ -144,7 +357,7 @@ namespace RoMan {
 			m_VertexArray->AddVertexBuffer(vb);
 		}
 
-		auto ib = IndexBuffer::Create((uint32_t*)m_Indices.data(), m_Indices.size() * sizeof(Index));
+		auto ib = IndexBuffer::Create(m_Indices.data(), m_Indices.size() * sizeof(Index));
 		m_VertexArray->SetIndexBuffer(ib);
 		m_Scene = scene;
 	}
@@ -172,41 +385,9 @@ namespace RoMan {
 		}
 	}
 
-	void Mesh::Render(Timestep ts, Ref<MaterialInstance> materialInstance)
+	void RoMan::Mesh::OnUpdate(Timestep ts)
 	{
-		Render(ts, glm::mat4(1.0f), materialInstance);
-	}
-
-	void Mesh::Render(Timestep ts, const glm::mat4& transform, Ref<MaterialInstance> materialInstance)
-	{
-		if (materialInstance)
-			materialInstance->Bind();
-
-		// TODO: Sort this out
-		m_VertexArray->Bind();
-
-		bool materialOverride = !!materialInstance;
-
-		// TODO: replace with render API calls
-		RM_RENDER_S2(transform, materialOverride, {
-			for (SubMesh& submesh : self->m_SubMeshes)
-			{
-				if (!materialOverride)
-					self->m_MeshShader->SetMat4FromRenderThread("u_ModelMatrix", transform * submesh.Transform);
-				glDrawElementsBaseVertex(GL_TRIANGLES, submesh.IndexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint32_t) * submesh.BaseIndex), submesh.BaseVertex);
-			}
-			});
-	}
-
-	void Mesh::OnImGuiRender()
-	{
-		ImGui::Begin("Mesh Debug");
-		if (ImGui::CollapsingHeader(m_FilePath.c_str()))
-		{
-
-		}
-
-		ImGui::End();
+		//TODO: Animations
 	}
 
 	void Mesh::DumpVertexBuffer()

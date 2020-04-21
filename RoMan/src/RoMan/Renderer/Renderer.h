@@ -1,9 +1,17 @@
 #pragma once
 
-#include "RenderCommandQueue.h"
-#include "RendererAPI.h"
+#include "RoMan/Core.h"
 
-#include "Camera.h"
+#include "RoMan/Renderer/RenderCommandQueue.h"
+#include "RoMan/Renderer/RendererAPI.h"
+#include "RoMan/Renderer/RenderPass.h"
+#include "RoMan/Renderer/Camera.h"
+#include "RoMan/Renderer/Material.h"
+#include "RoMan/Renderer/Shader.h"
+#include "RoMan/Renderer/SceneRenderer.h"
+#include "RoMan/Renderer/Mesh.h"
+
+#include <glm/glm.hpp>
 
 namespace RoMan
 {
@@ -25,34 +33,20 @@ namespace RoMan
 
 		static void Init();
 
-		static const Scope<ShaderLibrary>& GetShaderLibrary() { return Get().m_ShaderLibrary; }
+		static const Scope<ShaderLibrary>& GetShaderLibrary();
 
-		static void BeginScene(Camera& camera);
-		static void EndScene();
+		static void* Submit(RenderCommandFn fn, unsigned int size);
 
-		static void* Submit(RenderCommandFn fn, unsigned int size)
-		{
-			return s_Instance->m_CommandQueue.Allocate(fn, size);
-		}
+		static void WaitAndRender();
 
-		void WaitAndRender();
+		static void BeginRenderPass(const Ref<RenderPass>& renderPass);
+		static void EndRenderPass();
 
-		//static void Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
-		inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
-
-		inline static Renderer& Get() { return *s_Instance; }
+		static void SubmitQuad(const Ref<MaterialInstance>& material, const glm::mat4& transform = glm::mat4(1.0f));
+		static void SubmitFullscreenQuad(const Ref<MaterialInstance>& material);
+		static void SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform, const Ref<MaterialInstance>& overrideMaterial = nullptr);
 	private:
-		struct SceneData
-		{
-			glm::mat4 ViewProjectionMatrix;
-		};
-
-		static SceneData* s_SceneData;
-
-		static Renderer* s_Instance;
-
-		RenderCommandQueue m_CommandQueue;
-		Scope<ShaderLibrary> m_ShaderLibrary;
+		static RenderCommandQueue& GetRenderCommandQueue();
 	};
 }
 
@@ -169,6 +163,39 @@ namespace RoMan
 		new (mem) RM_RENDER_UNIQUE(RMRenderCommand)(arg0, arg1, arg2, arg3);\
 	}
 
+
+#define RM_RENDER_5(arg0, arg1, arg2, arg3, arg4, code) \
+    struct RM_RENDER_UNIQUE(RMRenderCommand) \
+    {\
+		RM_RENDER_UNIQUE(RMRenderCommand)(typename ::std::remove_const<typename ::std::remove_reference<decltype(arg0)>::type>::type arg0,\
+											typename ::std::remove_const<typename ::std::remove_reference<decltype(arg1)>::type>::type arg1,\
+											typename ::std::remove_const<typename ::std::remove_reference<decltype(arg2)>::type>::type arg2,\
+											typename ::std::remove_const<typename ::std::remove_reference<decltype(arg3)>::type>::type arg3,\
+											typename ::std::remove_const<typename ::std::remove_reference<decltype(arg4)>::type>::type arg4)\
+		: arg0(arg0), arg1(arg1), arg2(arg2), arg3(arg3), arg4(arg4) {}\
+		\
+        static void Execute(void* argBuffer)\
+        {\
+			auto& arg0 = ((RM_RENDER_UNIQUE(RMRenderCommand)*)argBuffer)->arg0;\
+			auto& arg1 = ((RM_RENDER_UNIQUE(RMRenderCommand)*)argBuffer)->arg1;\
+			auto& arg2 = ((RM_RENDER_UNIQUE(RMRenderCommand)*)argBuffer)->arg2;\
+			auto& arg3 = ((RM_RENDER_UNIQUE(RMRenderCommand)*)argBuffer)->arg3;\
+			auto& arg4 = ((RM_RENDER_UNIQUE(RMRenderCommand)*)argBuffer)->arg4;\
+            code\
+        }\
+		\
+		typename ::std::remove_const<typename ::std::remove_reference<decltype(arg0)>::type>::type arg0;\
+		typename ::std::remove_const<typename ::std::remove_reference<decltype(arg1)>::type>::type arg1;\
+		typename ::std::remove_const<typename ::std::remove_reference<decltype(arg2)>::type>::type arg2;\
+		typename ::std::remove_const<typename ::std::remove_reference<decltype(arg3)>::type>::type arg3;\
+		typename ::std::remove_const<typename ::std::remove_reference<decltype(arg4)>::type>::type arg4;\
+    };\
+	{\
+		auto mem = Renderer::Submit(RM_RENDER_UNIQUE(RMRenderCommand)::Execute, sizeof(RM_RENDER_UNIQUE(RMRenderCommand)));\
+		new (mem) RM_RENDER_UNIQUE(RMRenderCommand)(arg0, arg1, arg2, arg3, arg4);\
+	}
+
+
 #define RM_RENDER_S(code) auto self = this;\
 	RM_RENDER_1(self, code)
 
@@ -180,3 +207,6 @@ namespace RoMan
 
 #define RM_RENDER_S3(arg0, arg1, arg2, code) auto self = this;\
 	RM_RENDER_4(self, arg0, arg1, arg2, code)
+
+#define RM_RENDER_S4(arg0, arg1, arg2, arg3, code) auto self = this;\
+	RM_RENDER_5(self, arg0, arg1, arg2, arg3, code)

@@ -17,6 +17,7 @@ namespace RoMan
 		{
 		case RoMan::TextureFormat::RGB:     return GL_RGB;
 		case RoMan::TextureFormat::RGBA:    return GL_RGBA;
+		case RoMan::TextureFormat::Float16: return GL_RGBA16F;
 		}
 		return 0;
 	}
@@ -141,7 +142,31 @@ namespace RoMan
 		return m_ImageData;
 	}
 
+	uint32_t OpenGLTexture2D::GetMipLevelCount() const
+	{
+		return Texture::CalculateMipMapCount(m_Width, m_Height);
+	}
+
 	//////////////TextureCube//////////////////////
+
+	RoMan::OpenGLTextureCube::OpenGLTextureCube(TextureFormat format, uint32_t width, uint32_t height)
+	{
+		m_Width = width;
+		m_Height = height;
+		m_Format = format;
+
+		uint32_t levels = Texture::CalculateMipMapCount(width, height);
+
+		RM_RENDER_S3(width, height, levels, {
+			glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &self->m_RendererID);
+			glTextureStorage2D(self->m_RendererID, levels, RoManToOpenGLTextureFormat(self->m_Format), width, height);
+			glTextureParameteri(self->m_RendererID, GL_TEXTURE_MIN_FILTER, levels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+			glTextureParameteri(self->m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		});
+	}
 
 	OpenGLTextureCube::OpenGLTextureCube(const std::string& path)
 		: m_FilePath(path)
@@ -244,5 +269,10 @@ namespace RoMan
 		RM_RENDER_S1(slot, {
 			glBindTextureUnit(slot, self->m_RendererID);
 			});
+	}
+
+	uint32_t OpenGLTextureCube::GetMipLevelCount() const
+	{
+		return Texture::CalculateMipMapCount(m_Width, m_Height);
 	}
 }

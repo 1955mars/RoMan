@@ -8,7 +8,7 @@ namespace RoMan
 {
 	Ref<VertexArray> VertexArray::Create()
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererAPI::GetAPI())
 		{
 		case RendererAPI::API::None: 
 			RM_CORE_ASSERT(false, "Renderer API is not supported by RoMan Engine");

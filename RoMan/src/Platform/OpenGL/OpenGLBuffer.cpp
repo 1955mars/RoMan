@@ -3,52 +3,115 @@
 
 #include "glad/glad.h"
 
+#include "RoMan/Renderer/Renderer.h"
+
 namespace RoMan
 {
 	///////////////////////////////////////////////////////////////////////////////
 	///////////////////// Vertex Buffer ////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////
 
-	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
+	static GLenum OpenGLUsage(VertexBufferUsage usage)
 	{
-		glCreateBuffers(1, &m_RendererID);
-		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+		switch (usage)
+		{
+		case VertexBufferUsage::Static:    return GL_STATIC_DRAW;
+		case VertexBufferUsage::Dynamic:   return GL_DYNAMIC_DRAW;
+		}
+		RM_CORE_ASSERT(false, "Unknown vertex buffer usage");
+		return 0;
 	}
+
+	OpenGLVertexBuffer::OpenGLVertexBuffer(void* data, uint32_t size, VertexBufferUsage usage)
+		: m_Size(size), m_Usage(usage)
+	{
+		m_LocalData = Buffer::Copy(data, size);
+
+		RM_RENDER_S( {
+			glCreateBuffers(1, &self->m_RendererID);
+			glNamedBufferData(self->m_RendererID, self->m_Size, self->m_LocalData.Data, OpenGLUsage(self->m_Usage));
+		});
+	}
+
+	OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size, VertexBufferUsage usage)
+		: m_Size(size), m_Usage(usage)
+	{
+		RM_RENDER_S( {
+			glCreateBuffers(1, &self->m_RendererID);
+			glNamedBufferData(self->m_RendererID, self->m_Size, nullptr, OpenGLUsage(self->m_Usage));
+		});
+	}
+
 	OpenGLVertexBuffer::~OpenGLVertexBuffer()
 	{
-		glDeleteBuffers(1, &m_RendererID);
+		RM_RENDER_S( {
+			glDeleteBuffers(1, &self->m_RendererID);
+		});
 	}
+
+	void OpenGLVertexBuffer::SetData(void* data, uint32_t size, uint32_t offset)
+	{
+		m_LocalData = Buffer::Copy(data, size);
+		m_Size = size;
+		RM_RENDER_S1(offset, {
+			glNamedBufferSubData(self->m_RendererID, offset, self->m_Size, self->m_LocalData.Data);
+		});
+	}
+
 	void OpenGLVertexBuffer::Bind() const
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		RM_RENDER_S({
+			glBindBuffer(GL_ARRAY_BUFFER, self->m_RendererID);
+		});
 	}
 	void OpenGLVertexBuffer::UnBind() const
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		RM_RENDER({
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+		});
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
 	///////////////////// Index Buffer ////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////
 
-	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count)
-		:m_Count(count)
+	OpenGLIndexBuffer::OpenGLIndexBuffer(void* data, uint32_t size)
+		: m_RendererID(0), m_Size(size)
 	{
-		glCreateBuffers(1, &m_RendererID);
-		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ARRAY_BUFFER, m_Count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+		m_LocalData = Buffer::Copy(data, size);
+
+		RM_RENDER_S({
+			glCreateBuffers(1, &self->m_RendererID);
+			glNamedBufferData(self->m_RendererID, self->m_Size, self->m_LocalData.Data, GL_STATIC_DRAW);
+		});
 	}
+
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()
 	{
-		glDeleteBuffers(1, &m_RendererID);
+		RM_RENDER_S({
+			glDeleteBuffers(1, &self->m_RendererID);
+		});
 	}
+
+	void OpenGLIndexBuffer::SetData(void* data, uint32_t size, uint32_t offset)
+	{
+		m_LocalData = Buffer::Copy(data, size);
+		m_Size = size;
+		RM_RENDER_S1(offset,{
+			glNamedBufferSubData(self->m_RendererID, offset, self->m_Size, self->m_LocalData.Data);
+		});
+	}
+
 	void OpenGLIndexBuffer::Bind() const
 	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+		RM_RENDER_S({
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self->m_RendererID);
+		});
 	}
 	void OpenGLIndexBuffer::UnBind() const
 	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		RM_RENDER({
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		});
 	}
 }

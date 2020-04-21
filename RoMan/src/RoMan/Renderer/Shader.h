@@ -1,7 +1,8 @@
 #pragma once
 
+#include "RoMan/Core.h"
 #include "RoMan/Buffer.h"
-#include "RoMan/Renderer/Renderer.h"
+#include "RoMan/Renderer/RendererAPI.h"
 #include "RoMan/Renderer/ShaderUniform.h"
 
 #include <string>
@@ -117,6 +118,7 @@ namespace RoMan
 		virtual void Reload() = 0;
 
 		virtual void Bind() const = 0;
+		virtual RendererID GetRendererID() const = 0;
 		virtual void UnBind() const = 0;
 
 		virtual void UploadUniformBuffer(const UniformBufferBase& uniformBuffer) = 0;
@@ -137,6 +139,8 @@ namespace RoMan
 
 		virtual const ShaderUniformBufferList& GetVSRendererUniforms() const = 0;
 		virtual const ShaderUniformBufferList& GetFSRendererUniforms() const = 0;
+		virtual bool HasVSMaterialUniformBuffer() const = 0;
+		virtual bool HasPSMaterialUniformBuffer() const = 0;
 		virtual const ShaderUniformBufferDeclaration& GetVSMaterialUniformBuffer() const = 0;
 		virtual const ShaderUniformBufferDeclaration& GetFSMaterialUniformBuffer() const = 0;
 

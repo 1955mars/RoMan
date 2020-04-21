@@ -1,13 +1,21 @@
 #pragma once
 
 #include "RoMan/Core.h"
-#include "RoMan/Renderer/Texture.h"
 #include "RoMan/Renderer/Shader.h"
+#include "RoMan/Renderer/Texture.h"
 
 #include <unordered_set>
 
 namespace RoMan
 {
+	enum class MaterialFlag
+	{
+		NoNE		= BIT(0),
+		DepthTest	= BIT(1),
+		Blend		= BIT(2)	
+	};
+
+
 	class Material
 	{
 		friend class MaterialInstance;
@@ -16,6 +24,9 @@ namespace RoMan
 		virtual ~Material();
 
 		void Bind() const;
+
+		uint32_t GetFlags() const { return m_MaterialFlags; }
+		void SetFlag(MaterialFlag flag) { m_MaterialFlags |= (uint32_t) flag; }
 
 		template<typename T>
 		void Set(const std::string& name, const T& value)
@@ -68,7 +79,7 @@ namespace RoMan
 		Buffer m_FSUniformStorageBuffer;
 		std::vector<Ref<Texture>> m_Textures;
 
-		int32_t m_RenderFlags = 0;
+		uint32_t m_MaterialFlags;
 	};
 
 
@@ -113,6 +124,12 @@ namespace RoMan
 		}
 
 		void Bind() const;
+
+		uint32_t GetFlags() const { return m_Material->m_MaterialFlags; }
+		bool GetFlag(MaterialFlag flag) const { return (uint32_t)flag & m_Material->m_MaterialFlags; }
+		void SetFlag(MaterialFlag flag, bool value = true);
+
+		Ref<Shader> GetShader() { return m_Material->m_Shader; }
 	public:
 		static Ref<MaterialInstance> Create(const Ref<Material>& material);
 	private:

@@ -3,6 +3,8 @@
 
 #include <glad/glad.h>
 
+#include "RoMan/Renderer/Renderer.h"
+
 namespace RoMan
 {
 	static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
@@ -28,46 +30,60 @@ namespace RoMan
 
 	OpenGLVertexArray::OpenGLVertexArray()
 	{
-		glCreateVertexArrays(1, &m_RendererID);
+		RM_RENDER_S({ glCreateVertexArrays(1, &self->m_RendererID); });
 	}
 	OpenGLVertexArray::~OpenGLVertexArray()
 	{
-		glDeleteVertexArrays(1, &m_RendererID);
+		RM_RENDER_S({ glDeleteVertexArrays(1, &self->m_RendererID); });
 	}
 	void OpenGLVertexArray::Bind() const
 	{
-		glBindVertexArray(m_RendererID);
+		RM_RENDER_S({ glBindVertexArray(self->m_RendererID); });
 	}
 	void OpenGLVertexArray::UnBind() const
 	{
-		glBindVertexArray(0);
+		RM_RENDER({ glBindVertexArray(0); });
 	}
 	void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer)
 	{
 		RM_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "VertexBuffer has no layout!");
 
-		glBindVertexArray(m_RendererID);
+		Bind();
 		vertexBuffer->Bind();
 
-		const auto& layout = vertexBuffer->GetLayout();
-		for (const auto& element : layout)
-		{
-			glEnableVertexAttribArray(m_VertexBufferIndex);
-			glVertexAttribPointer(m_VertexBufferIndex,
-				element.GetComponentCount(),
-				ShaderDataTypeToOpenGLBaseType(element.Type),
-				element.Normalized ? GL_TRUE : GL_FALSE,
-				layout.GetStride(),
-				(const void*)(intptr_t)element.Offset);
-			m_VertexBufferIndex++;
-		}
+		RM_RENDER_S1(vertexBuffer, {
 
+		const auto & layout = vertexBuffer->GetLayout();
+			for (const auto& element : layout)
+			{
+				auto glBaseType = ShaderDataTypeToOpenGLBaseType(element.Type);
+				glEnableVertexAttribArray(self->m_VertexBufferIndex);
+				if (glBaseType == GL_INT)
+				{
+					glVertexAttribIPointer(self->m_VertexBufferIndex,
+						element.GetComponentCount(),
+						glBaseType,
+						layout.GetStride(),
+						(const void*)(intptr_t)element.Offset);
+				}
+				else
+				{
+					glVertexAttribPointer(self->m_VertexBufferIndex,
+						element.GetComponentCount(),
+						glBaseType,
+						element.Normalized ? GL_TRUE : GL_FALSE,
+						layout.GetStride(),
+						(const void*)(intptr_t)element.Offset);
+				}
+				self->m_VertexBufferIndex++;
+			}
+		});
 		m_VertexBuffers.push_back(vertexBuffer);
 
 	}
 	void OpenGLVertexArray::SetIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer)
 	{
-		glBindVertexArray(m_RendererID);
+		Bind();
 		indexBuffer->Bind();
 
 		m_IndexBuffer = indexBuffer;

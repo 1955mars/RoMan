@@ -11,7 +11,7 @@ namespace RoMan
 		if (severity != GL_DEBUG_SEVERITY_NOTIFICATION)
 		{
 			RM_CORE_ERROR("{0}", message);
-			RM_CORE_ASSERT(false, "");
+			//RM_CORE_ASSERT(false, "");
 		}
 		else
 		{
@@ -21,9 +21,9 @@ namespace RoMan
 
 	void RendererAPI::Init()
 	{
-		glDebugMessageCallback(OpenGLLogMessage, nullptr);
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		//glDebugMessageCallback(OpenGLLogMessage, nullptr);
+		//glEnable(GL_DEBUG_OUTPUT);
+		//glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
 		unsigned int vao;
 		glGenVertexArrays(1, &vao);
@@ -31,8 +31,8 @@ namespace RoMan
 
 		glEnable(GL_DEPTH_TEST);
 		//glEnable(GL_CULL_FACE);
-		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-		glFrontFace(GL_CCW);
+		//glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+		//glFrontFace(GL_CCW);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

@@ -49,15 +49,19 @@ namespace RoMan
 	void OpenGLShader::Load(const std::string& source)
 	{
 		m_ShaderSource = PreProcess(source);
-		Parse();
+		if(!m_IsCompute)
+			Parse();
 
 		RM_RENDER_S({
 			if (self->m_RendererID)
 				glDeleteShader(self->m_RendererID);
 
 			self->CompileAndUploadShader();
-			self->ResolveUniforms();
-			self->ValidateUniforms();
+			if (!self->m_IsCompute)
+			{
+				self->ResolveUniforms();
+				self->ValidateUniforms();
+			}
 
 			if (self->m_Loaded)
 			{
@@ -106,6 +110,14 @@ namespace RoMan
 			size_t nextLinePos = source.find_first_not_of("\r\n", eol);
 			pos = source.find(typeToken, nextLinePos);
 			shaderSources[ShaderTypeFromString(type)] = source.substr(nextLinePos, pos - (nextLinePos == std::string::npos ? source.size() - 1 : nextLinePos));
+		
+			auto shaderType = ShaderTypeFromString(type);
+			// Compute shaders cannot contain other types
+			if (shaderType == GL_COMPUTE_SHADER)
+			{
+				m_IsCompute = true;
+				break;
+			}
 		}
 
 		return shaderSources;
@@ -118,6 +130,8 @@ namespace RoMan
 			return GL_VERTEX_SHADER;
 		else if (type == "fragment")
 			return GL_FRAGMENT_SHADER;
+		else if (type == "compute")
+			return GL_COMPUTE_SHADER;
 
 		RM_CORE_ASSERT(false, "Unknown ShaderType!");
 

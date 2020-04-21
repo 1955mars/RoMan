@@ -2,6 +2,9 @@
 
 #include "Event.h"
 
+#include "RoMan/KeyCodes.h"
+
+#include <sstream>
 
 namespace RoMan
 {

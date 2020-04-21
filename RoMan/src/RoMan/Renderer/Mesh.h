@@ -1,7 +1,7 @@
 #pragma once
 
+#include "RoMan/Core.h"
 #include "RoMan/Core/Timestep.h"
-
 #include "RoMan/Renderer/VertexArray.h"
 #include "RoMan/Renderer/Buffer.h"
 #include "RoMan/Renderer/Shader.h"
@@ -14,6 +14,7 @@
 
 struct aiNode;
 struct aiScene;
+
 
 namespace Assimp
 {
@@ -53,16 +54,15 @@ namespace RoMan
 		Mesh(const std::string& filename);
 		~Mesh();
 
-		void Render(Timestep ts, Ref<MaterialInstance> materialInstance = Ref<MaterialInstance>());
-		void Render(Timestep ts, const glm::mat4& transform = glm::mat4(1.0f), Ref<MaterialInstance> materialInstance = Ref<MaterialInstance>());
-		void OnImGuiRender();
+		void OnUpdate(Timestep ts);
 		void DumpVertexBuffer();
 
-		inline Ref<Shader> GetMeshShader() { return m_MeshShader; }
-		inline Ref<Material> GetMaterial() { return m_Material; }
+		Ref<Shader> GetMeshShader() { return m_MeshShader; }
+		Ref<Material> GetMaterial() { return m_BaseMaterial; }
+		std::vector<Ref<MaterialInstance>> GetMaterials() { return m_Materials; }
+		const std::vector<Ref<Texture2D>> GetTextures() { return m_Textures; }
 		inline const std::string& GetFilePath() const { return m_FilePath; }
 
-		const Ref<VertexArray>& GetVertexArray() const { return m_VertexArray; }
 	private:
 		void TraverseNodes(aiNode* node, int level = 0);
 
@@ -83,9 +83,14 @@ namespace RoMan
 
 		// Materials
 		Ref<Shader> m_MeshShader;
-		Ref<Material> m_Material;
+		Ref<Material> m_BaseMaterial;
+		std::vector<Ref<Texture2D>> m_Textures;
+		std::vector<Ref<Texture2D>> m_NormalMaps;
+		std::vector<Ref<MaterialInstance>> m_Materials;
 
 
 		std::string m_FilePath;
+
+		friend class Renderer;
 	};
 }

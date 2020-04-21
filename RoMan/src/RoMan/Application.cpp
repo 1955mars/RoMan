@@ -1,13 +1,18 @@
 #include "rmpch.h"
 #include "Application.h"
 
-#include "RoMan/Log.h"
-
-#include "RoMan/Input.h"
-
 #include "RoMan/Renderer/Renderer.h"
+#include "RoMan/Renderer/Framebuffer.h"
+#include <GLFW/glfw3.h>
 
-#include "GLFW/glfw3.h" //TODO: will be removed in the future when timing calculation is implemented in Platform
+#include <imgui.h>
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+#include <Windows.h>
+#include <glad\glad.h>
+
+ //TODO: will be removed in the future when timing calculation is implemented in Platform
 
 namespace RoMan
 {
@@ -15,13 +20,12 @@ namespace RoMan
 
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application()
+	Application::Application(const ApplicationProps& props)
 	{
 		RM_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
-		m_Window = std::unique_ptr<Window>(Window::Create());
-		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
+		m_Window = std::unique_ptr<Window>(Window::Create(WindowProps(props.Name, props.WindowWidth, props.WindowHeight)));
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 		m_Window->SetVSync(false);
 
@@ -29,7 +33,12 @@ namespace RoMan
 		PushOverlay(m_ImGuiLayer);
 
 		Renderer::Init();
-		Renderer::Get().WaitAndRender();
+		Renderer::WaitAndRender();
+	}
+
+	Application::~Application()
+	{
+
 	}
 
 	void Application::PushLayer(Layer* layer)
@@ -44,6 +53,7 @@ namespace RoMan
 
 	void Application::Run()
 	{
+		OnInit();
 		while (m_Running)
 		{
 			float time = (float) glfwGetTime();
@@ -58,10 +68,11 @@ namespace RoMan
 				layer->OnImGuiRender();
 			m_ImGuiLayer->End();
 
-			Renderer::Get().WaitAndRender();
+			Renderer::WaitAndRender();
 
 			m_Window->OnUpdate();
 		}
+		OnShutDown();
 	}
 
 	void Application::OnEvent(Event& e)
@@ -75,6 +86,24 @@ namespace RoMan
 			if (e.Handled)
 				break;
 		}
+	}
+
+	bool Application::OnWindowResize(WindowResizeEvent& e)
+	{
+		int width = e.GetWidth(), height = e.GetHeight();
+		if (width == 0 || height == 0)
+		{
+			return false;
+		}
+
+		RM_RENDER_2(width, height, { glViewport(0, 0, width, height); });
+		auto& fbs = FramebufferPool::GetGlobal()->GetAll();
+		for (auto& fb : fbs)
+		{
+			if (auto fbp = fb.lock())
+				fbp->Resize(width, height);
+		}
+		return false;
 	}
 
 	bool Application::OnWindowClose(WindowCloseEvent& e)

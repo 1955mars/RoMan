@@ -1,38 +1,31 @@
 #pragma once
 
 //For use only by RoMan applications
-#include <stdio.h>
 #include "RoMan/Application.h"
-#include "RoMan/Layer.h"
 #include "RoMan/Log.h"
-
 #include "RoMan/Core/Timestep.h"
 
-#include "RoMan/Input.h"
-#include "RoMan/KeyCodes.h"
-#include "RoMan/MouseButtonCodes.h"
+#include "RoMan/Events/Event.h"
+#include "RoMan/Events/ApplicationEvent.h"
+#include "RoMan/Events/KeyEvent.h"
+#include "RoMan/Events/MouseEvent.h"
 
-#include "RoMan/ImGui/ImGuiLayer.h"
+#include "imgui/imgui.h"
 
-//-----------Renderer-------------------------
-
+// --- Hazel Render API ------------------------------
 #include "RoMan/Renderer/Renderer.h"
-#include "RoMan/Renderer/RenderCommand.h"
-
+#include "RoMan/Renderer/SceneRenderer.h"
+#include "RoMan/Renderer/RenderPass.h"
+#include "RoMan/Renderer/Framebuffer.h"
 #include "RoMan/Renderer/Buffer.h"
-#include "RoMan/Renderer/Shader.h"
 #include "RoMan/Renderer/VertexArray.h"
-
 #include "RoMan/Renderer/Texture.h"
-#include "RoMan/Renderer/FrameBuffer.h"
-
+#include "RoMan/Renderer/Shader.h"
 #include "RoMan/Renderer/Mesh.h"
-
-//------------Camera---------------------------
-
 #include "RoMan/Renderer/Camera.h"
-#include "RoMan/Renderer/OrthographicCamera.h"
+#include "RoMan/Renderer/Material.h"
+// ---------------------------------------------------
 
-//-------Entry Point------------
-#include "RoMan/EntryPoint.h"
-//------------------------------
+// Scenes
+#include "RoMan/Scene/Entity.h"
+#include "RoMan/Scene/Scene.h"
