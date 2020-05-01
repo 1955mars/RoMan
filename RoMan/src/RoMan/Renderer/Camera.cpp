@@ -4,8 +4,9 @@
 
 #include "RoMan/Input.h"
 #include "RoMan/KeyCodes.h"
-
 #include "glm/gtc/quaternion.hpp"
+
+#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/quaternion.hpp"
 
 #define M_PI 3.14159f
