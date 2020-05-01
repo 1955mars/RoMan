@@ -23,6 +23,17 @@
 
 namespace RoMan {
 
+	glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4& from)
+	{
+		glm::mat4 to;
+		//the a,b,c,d in assimp is the row ; the 1,2,3,4 is the column
+		to[0][0] = from.a1; to[1][0] = from.a2; to[2][0] = from.a3; to[3][0] = from.a4;
+		to[0][1] = from.b1; to[1][1] = from.b2; to[2][1] = from.b3; to[3][1] = from.b4;
+		to[0][2] = from.c1; to[1][2] = from.c2; to[2][2] = from.c3; to[3][2] = from.c4;
+		to[0][3] = from.d1; to[1][3] = from.d2; to[2][3] = from.d3; to[3][3] = from.d4;
+		return to;
+	}
+
 	static const uint32_t s_MeshImportFlags =
 		aiProcess_CalcTangentSpace |        // Create binormals/tangents just in case
 		aiProcess_Triangulate |             // Make sure we're triangles
@@ -49,17 +60,6 @@ namespace RoMan {
 		}
 	};
 
-	static glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4& from)
-	{
-		glm::mat4 to;
-		//the a,b,c,d in assimp is the row ; the 1,2,3,4 is the column
-		to[0][0] = from.a1; to[1][0] = from.a2; to[2][0] = from.a3; to[3][0] = from.a4;
-		to[0][1] = from.b1; to[1][1] = from.b2; to[2][1] = from.b3; to[3][1] = from.b4;
-		to[0][2] = from.c1; to[1][2] = from.c2; to[2][2] = from.c3; to[3][2] = from.c4;
-		to[0][3] = from.d1; to[1][3] = from.d2; to[2][3] = from.d3; to[3][3] = from.d4;
-		return to;
-	}
-
 	Mesh::Mesh(const std::string& filename)
 		: m_FilePath(filename)
 	{
@@ -73,7 +73,7 @@ namespace RoMan {
 		if (!scene || !scene->HasMeshes())
 			RM_CORE_ERROR("Failed to load mesh file: {0}", filename);
 		
-		m_MeshShader = Renderer::GetShaderLibrary()->Get("Shader");
+		m_MeshShader = Renderer::GetShaderLibrary()->Get("HazelPBR_Static");
 		m_BaseMaterial.reset(new RoMan::Material(m_MeshShader));
 		m_InverseTransform = glm::inverse(aiMatrix4x4ToGlm(scene->mRootNode->mTransformation));
 
@@ -136,211 +136,211 @@ namespace RoMan {
 		//TODO: Bones (animations)
 
 		//Materials
-		//if (scene->HasMaterials())
-		//{
-		//	m_Textures.resize(scene->mNumMaterials);
-		//	m_Materials.resize(scene->mNumMaterials);
-		//	for (uint32_t i = 0; i < scene->mNumMaterials; i++)
-		//	{
-		//		auto aiMaterial = scene->mMaterials[i];
-		//		auto aiMaterialName = aiMaterial->GetName();
+		if (scene->HasMaterials())
+		{
+			m_Textures.resize(scene->mNumMaterials);
+			m_Materials.resize(scene->mNumMaterials);
+			for (uint32_t i = 0; i < scene->mNumMaterials; i++)
+			{
+				auto aiMaterial = scene->mMaterials[i];
+				auto aiMaterialName = aiMaterial->GetName();
 
-		//		auto mi = std::make_shared<MaterialInstance>(m_BaseMaterial);
-		//		m_Materials[i] = mi;
+				auto mi = std::make_shared<MaterialInstance>(m_BaseMaterial);
+				m_Materials[i] = mi;
 
-		//		RM_CORE_INFO("Material Name = {0}; Index = {1}", aiMaterialName.data, i);
-		//		aiString aiTexPath;
-		//		uint32_t textureCount = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
-		//		RM_CORE_TRACE("     Texture Count = {0}", textureCount);
+				RM_CORE_INFO("Material Name = {0}; Index = {1}", aiMaterialName.data, i);
+				aiString aiTexPath;
+				uint32_t textureCount = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
+				RM_CORE_TRACE("     Texture Count = {0}", textureCount);
 
-		//		aiColor3D aiColor;
-		//		aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
-		//		RM_CORE_TRACE("COLOR = {0}, {1}, {2}", aiColor.r, aiColor.g, aiColor.b);
+				aiColor3D aiColor;
+				aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
+				RM_CORE_TRACE("COLOR = {0}, {1}, {2}", aiColor.r, aiColor.g, aiColor.b);
 
-		//		if (aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexPath) == AI_SUCCESS)
-		//		{
-		//			//TODO: Should be handled by the engine's file system
-		//			std::filesystem::path path = filename;
-		//			auto parentPath = path.parent_path();
-		//			parentPath /= std::string(aiTexPath.data);
-		//			std::string texturePath = parentPath.string();
+				if (aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexPath) == AI_SUCCESS)
+				{
+					//TODO: Should be handled by the engine's file system
+					std::filesystem::path path = filename;
+					auto parentPath = path.parent_path();
+					parentPath /= std::string(aiTexPath.data);
+					std::string texturePath = parentPath.string();
 
-		//			auto texture = Texture2D::Create(texturePath, true);
-		//			if (texture->Loaded())
-		//			{
-		//				m_Textures[i] = texture;
-		//				RM_CORE_TRACE("  Texture Path = {0}", texturePath);
-		//				mi->Set("u_AlbedoTexture", m_Textures[i]);
-		//				mi->Set("u_AlbedoTexToggle", 1.0f);
-		//			}
-		//			else
-		//			{
-		//				RM_CORE_ERROR("Could not load texture: {0}", texturePath);
-		//				mi->Set("u_AlbedoColor", glm::vec3{ aiColor.r, aiColor.g, aiColor.b });
-		//			}
-		//		}
-		//		else
-		//		{
-		//			mi->Set("u_AlbedoTexToggle", 0.0f);
-		//			mi->Set("u_AlbedoColor", glm::vec3{ aiColor.r, aiColor.g, aiColor.b });
-		//		}
+					auto texture = Texture2D::Create(texturePath, true);
+					if (texture->Loaded())
+					{
+						m_Textures[i] = texture;
+						RM_CORE_TRACE("  Texture Path = {0}", texturePath);
+						mi->Set("u_AlbedoTexture", m_Textures[i]);
+						mi->Set("u_AlbedoTexToggle", 1.0f);
+					}
+					else
+					{
+						RM_CORE_ERROR("Could not load texture: {0}", texturePath);
+						mi->Set("u_AlbedoColor", glm::vec3{ aiColor.r, aiColor.g, aiColor.b });
+					}
+				}
+				else
+				{
+					mi->Set("u_AlbedoTexToggle", 0.0f);
+					mi->Set("u_AlbedoColor", glm::vec3{ aiColor.r, aiColor.g, aiColor.b });
+				}
 
-		//		for (uint32_t i = 0; i < aiMaterial->mNumProperties; i++)
-		//		{
-		//			auto prop = aiMaterial->mProperties[i];
-		//			RM_CORE_TRACE("Material Property:");
-		//			RM_CORE_TRACE("  Name = {0}", prop->mKey.data);
+				for (uint32_t i = 0; i < aiMaterial->mNumProperties; i++)
+				{
+					auto prop = aiMaterial->mProperties[i];
+					RM_CORE_TRACE("Material Property:");
+					RM_CORE_TRACE("  Name = {0}", prop->mKey.data);
 
-		//			switch (prop->mSemantic)
-		//			{
-		//			case aiTextureType_NONE:
-		//				RM_CORE_TRACE("  Semantic = aiTextureType_NONE");
-		//				break;
-		//			case aiTextureType_DIFFUSE:
-		//				RM_CORE_TRACE("  Semantic = aiTextureType_DIFFUSE");
-		//				break;
-		//			case aiTextureType_SPECULAR:
-		//				RM_CORE_TRACE("  Semantic = aiTextureType_SPECULAR");
-		//				break;
-		//			case aiTextureType_AMBIENT:
-		//				RM_CORE_TRACE("  Semantic = aiTextureType_AMBIENT");
-		//				break;
-		//			case aiTextureType_EMISSIVE:
-		//				RM_CORE_TRACE("  Semantic = aiTextureType_EMISSIVE");
-		//				break;
-		//			case aiTextureType_HEIGHT:
-		//				RM_CORE_TRACE("  Semantic = aiTextureType_HEIGHT");
-		//				break;
-		//			case aiTextureType_NORMALS:
-		//				RM_CORE_TRACE("  Semantic = aiTextureType_NORMALS");
-		//				break;
-		//			case aiTextureType_SHININESS:
-		//				RM_CORE_TRACE("  Semantic = aiTextureType_SHININESS");
-		//				break;
-		//			case aiTextureType_OPACITY:
-		//				RM_CORE_TRACE("  Semantic = aiTextureType_OPACITY");
-		//				break;
-		//			case aiTextureType_DISPLACEMENT:
-		//				RM_CORE_TRACE("  Semantic = aiTextureType_DISPLACEMENT");
-		//				break;
-		//			case aiTextureType_LIGHTMAP:
-		//				RM_CORE_TRACE("  Semantic = aiTextureType_LIGHTMAP");
-		//				break;
-		//			case aiTextureType_REFLECTION:
-		//				RM_CORE_TRACE("  Semantic = aiTextureType_REFLECTION");
-		//				break;
-		//			case aiTextureType_UNKNOWN:
-		//				RM_CORE_TRACE("  Semantic = aiTextureType_UNKNOWN");
-		//				break;
-		//			}
+					switch (prop->mSemantic)
+					{
+					case aiTextureType_NONE:
+						RM_CORE_TRACE("  Semantic = aiTextureType_NONE");
+						break;
+					case aiTextureType_DIFFUSE:
+						RM_CORE_TRACE("  Semantic = aiTextureType_DIFFUSE");
+						break;
+					case aiTextureType_SPECULAR:
+						RM_CORE_TRACE("  Semantic = aiTextureType_SPECULAR");
+						break;
+					case aiTextureType_AMBIENT:
+						RM_CORE_TRACE("  Semantic = aiTextureType_AMBIENT");
+						break;
+					case aiTextureType_EMISSIVE:
+						RM_CORE_TRACE("  Semantic = aiTextureType_EMISSIVE");
+						break;
+					case aiTextureType_HEIGHT:
+						RM_CORE_TRACE("  Semantic = aiTextureType_HEIGHT");
+						break;
+					case aiTextureType_NORMALS:
+						RM_CORE_TRACE("  Semantic = aiTextureType_NORMALS");
+						break;
+					case aiTextureType_SHININESS:
+						RM_CORE_TRACE("  Semantic = aiTextureType_SHININESS");
+						break;
+					case aiTextureType_OPACITY:
+						RM_CORE_TRACE("  Semantic = aiTextureType_OPACITY");
+						break;
+					case aiTextureType_DISPLACEMENT:
+						RM_CORE_TRACE("  Semantic = aiTextureType_DISPLACEMENT");
+						break;
+					case aiTextureType_LIGHTMAP:
+						RM_CORE_TRACE("  Semantic = aiTextureType_LIGHTMAP");
+						break;
+					case aiTextureType_REFLECTION:
+						RM_CORE_TRACE("  Semantic = aiTextureType_REFLECTION");
+						break;
+					case aiTextureType_UNKNOWN:
+						RM_CORE_TRACE("  Semantic = aiTextureType_UNKNOWN");
+						break;
+					}
 
-		//			if (prop->mType == aiPTI_String)
-		//			{
-		//				uint32_t strLength = *(uint32_t*)prop->mData;
-		//				std::string str(prop->mData + 4, strLength);
-		//				RM_CORE_TRACE("  Value = {0}", str);
+					if (prop->mType == aiPTI_String)
+					{
+						uint32_t strLength = *(uint32_t*)prop->mData;
+						std::string str(prop->mData + 4, strLength);
+						RM_CORE_TRACE("  Value = {0}", str);
 
-		//				std::string key = prop->mKey.data;
-		//				if (key == "$raw.ReflectionFactor|file")
-		//				{
-		//					// TODO: Temp - this should be handled by Hazel's filesystem
-		//					std::filesystem::path path = filename;
-		//					auto parentPath = path.parent_path();
-		//					parentPath /= str;
-		//					std::string texturePath = parentPath.string();
+						std::string key = prop->mKey.data;
+						if (key == "$raw.ReflectionFactor|file")
+						{
+							// TODO: Temp - this should be handled by Hazel's filesystem
+							std::filesystem::path path = filename;
+							auto parentPath = path.parent_path();
+							parentPath /= str;
+							std::string texturePath = parentPath.string();
 
-		//					auto texture = Texture2D::Create(texturePath);
-		//					if (texture->Loaded())
-		//					{
-		//						RM_CORE_TRACE("  Metalness map path = {0}", texturePath);
-		//						mi->Set("u_MetalnessTexture", texture);
-		//						mi->Set("u_MetalnessTexToggle", 1.0f);
-		//					}
-		//					else
-		//					{
-		//						RM_CORE_TRACE("Could not load texture: {0}", texturePath);
-		//						mi->Set("u_Metalness", 0.5f);
-		//						mi->Set("u_MetalnessTexToggle", 1.0f);
-		//					}
-		//				}
-		//			}
-		//		}
+							auto texture = Texture2D::Create(texturePath);
+							if (texture->Loaded())
+							{
+								RM_CORE_TRACE("  Metalness map path = {0}", texturePath);
+								mi->Set("u_MetalnessTexture", texture);
+								mi->Set("u_MetalnessTexToggle", 1.0f);
+							}
+							else
+							{
+								RM_CORE_TRACE("Could not load texture: {0}", texturePath);
+								mi->Set("u_Metalness", 0.5f);
+								mi->Set("u_MetalnessTexToggle", 1.0f);
+							}
+						}
+					}
+				}
 
 
-		//		// Normal maps
-		//		if (aiMaterial->GetTexture(aiTextureType_NORMALS, 0, &aiTexPath) == AI_SUCCESS)
-		//		{
-		//			// TODO: Temp - this should be handled by Hazel's filesystem
-		//			std::filesystem::path path = filename;
-		//			auto parentPath = path.parent_path();
-		//			parentPath /= std::string(aiTexPath.data);
-		//			std::string texturePath = parentPath.string();
+				// Normal maps
+				if (aiMaterial->GetTexture(aiTextureType_NORMALS, 0, &aiTexPath) == AI_SUCCESS)
+				{
+					// TODO: Temp - this should be handled by Hazel's filesystem
+					std::filesystem::path path = filename;
+					auto parentPath = path.parent_path();
+					parentPath /= std::string(aiTexPath.data);
+					std::string texturePath = parentPath.string();
 
-		//			auto texture = Texture2D::Create(texturePath);
-		//			if (texture->Loaded())
-		//			{
-		//				RM_CORE_TRACE("  Normal map path = {0}", texturePath);
-		//				mi->Set("u_NormalTexture", texture);
-		//				mi->Set("u_NormalTexToggle", 1.0f);
-		//			}
-		//			else
-		//			{
-		//				RM_CORE_TRACE("Could not load texture: {0}", texturePath);
-		//				//mi->Set("u_AlbedoTexToggle", 0.0f);
-		//				// mi->Set("u_AlbedoColor", glm::vec3{ color.r, color.g, color.b });
-		//			}
-		//		}
+					auto texture = Texture2D::Create(texturePath);
+					if (texture->Loaded())
+					{
+						RM_CORE_TRACE("  Normal map path = {0}", texturePath);
+						mi->Set("u_NormalTexture", texture);
+						mi->Set("u_NormalTexToggle", 1.0f);
+					}
+					else
+					{
+						RM_CORE_TRACE("Could not load texture: {0}", texturePath);
+						//mi->Set("u_AlbedoTexToggle", 0.0f);
+						// mi->Set("u_AlbedoColor", glm::vec3{ color.r, color.g, color.b });
+					}
+				}
 
-		//		// Roughness map
-		//		if (aiMaterial->GetTexture(aiTextureType_SHININESS, 0, &aiTexPath) == AI_SUCCESS)
-		//		{
-		//			// TODO: Temp - this should be handled by Hazel's filesystem
-		//			std::filesystem::path path = filename;
-		//			auto parentPath = path.parent_path();
-		//			parentPath /= std::string(aiTexPath.data);
-		//			std::string texturePath = parentPath.string();
+				// Roughness map
+				if (aiMaterial->GetTexture(aiTextureType_SHININESS, 0, &aiTexPath) == AI_SUCCESS)
+				{
+					// TODO: Temp - this should be handled by Hazel's filesystem
+					std::filesystem::path path = filename;
+					auto parentPath = path.parent_path();
+					parentPath /= std::string(aiTexPath.data);
+					std::string texturePath = parentPath.string();
 
-		//			auto texture = Texture2D::Create(texturePath);
-		//			if (texture->Loaded())
-		//			{
-		//				RM_CORE_TRACE("  Roughness map path = {0}", texturePath);
-		//				mi->Set("u_RoughnessTexture", texture);
-		//				mi->Set("u_RoughnessTexToggle", 1.0f);
-		//			}
-		//			else
-		//			{
-		//				RM_CORE_TRACE("Could not load texture: {0}", texturePath);
-		//				mi->Set("u_RoughnessTexToggle", 1.0f);
-		//				mi->Set("u_Roughness", 0.5f);
-		//			}
-		//		}
+					auto texture = Texture2D::Create(texturePath);
+					if (texture->Loaded())
+					{
+						RM_CORE_TRACE("  Roughness map path = {0}", texturePath);
+						mi->Set("u_RoughnessTexture", texture);
+						mi->Set("u_RoughnessTexToggle", 1.0f);
+					}
+					else
+					{
+						RM_CORE_TRACE("Could not load texture: {0}", texturePath);
+						mi->Set("u_RoughnessTexToggle", 1.0f);
+						mi->Set("u_Roughness", 0.5f);
+					}
+				}
 
-		//		// Metalness map
-		//		if (aiMaterial->Get("$raw.ReflectionFactor|file", aiPTI_String, 0, aiTexPath) == AI_SUCCESS)
-		//		{
-		//			// TODO: Temp - this should be handled by Hazel's filesystem
-		//			std::filesystem::path path = filename;
-		//			auto parentPath = path.parent_path();
-		//			parentPath /= std::string(aiTexPath.data);
-		//			std::string texturePath = parentPath.string();
+				// Metalness map
+				if (aiMaterial->Get("$raw.ReflectionFactor|file", aiPTI_String, 0, aiTexPath) == AI_SUCCESS)
+				{
+					// TODO: Temp - this should be handled by Hazel's filesystem
+					std::filesystem::path path = filename;
+					auto parentPath = path.parent_path();
+					parentPath /= std::string(aiTexPath.data);
+					std::string texturePath = parentPath.string();
 
-		//			auto texture = Texture2D::Create(texturePath);
-		//			if (texture->Loaded())
-		//			{
-		//				RM_CORE_TRACE("  Metalness map path = {0}", texturePath);
-		//				mi->Set("u_MetalnessTexture", texture);
-		//				mi->Set("u_MetalnessTexToggle", 1.0f);
-		//			}
-		//			else
-		//			{
-		//				RM_CORE_TRACE("Could not load texture: {0}", texturePath);
-		//				mi->Set("u_Metalness", 0.5f);
-		//				mi->Set("u_MetalnessTexToggle", 1.0f);
-		//			}
-		//		}
+					auto texture = Texture2D::Create(texturePath);
+					if (texture->Loaded())
+					{
+						RM_CORE_TRACE("  Metalness map path = {0}", texturePath);
+						mi->Set("u_MetalnessTexture", texture);
+						mi->Set("u_MetalnessTexToggle", 1.0f);
+					}
+					else
+					{
+						RM_CORE_TRACE("Could not load texture: {0}", texturePath);
+						mi->Set("u_Metalness", 0.5f);
+						mi->Set("u_MetalnessTexToggle", 1.0f);
+					}
+				}
 
-		//	}
-		//}
+			}
+		}
 
 
 		m_VertexArray = VertexArray::Create();

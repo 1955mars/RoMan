@@ -53,24 +53,25 @@ namespace RoMan
 		geoRenderPassSpec.TargetFramebuffer = Framebuffer::Create(geoFramebufferSpec);
 		s_Data.GeoPass = RenderPass::Create(geoRenderPassSpec);
 
-		//FramebufferSpecification compFramebufferSpec;
-		//compFramebufferSpec.Width = 1280;
-		//compFramebufferSpec.Height = 720;
-		//compFramebufferSpec.Format = FramebufferFormat::RGBA8;
-		//compFramebufferSpec.ClearColor = { 0.5f, 0.1f, 0.1f, 1.0f };
+		FramebufferSpecification compFramebufferSpec;
+		compFramebufferSpec.Width = 1280;
+		compFramebufferSpec.Height = 720;
+		compFramebufferSpec.Format = FramebufferFormat::RGBA8;
+		compFramebufferSpec.ClearColor = { 0.5f, 0.1f, 0.1f, 1.0f };
 
-		//RenderPassSpecification compRenderPassSpec;
-		//compRenderPassSpec.TargetFramebuffer = Framebuffer::Create(compFramebufferSpec);
-		//s_Data.CompositePass = RenderPass::Create(compRenderPassSpec);
+		RenderPassSpecification compRenderPassSpec;
+		compRenderPassSpec.TargetFramebuffer = Framebuffer::Create(compFramebufferSpec);
+		s_Data.CompositePass = RenderPass::Create(compRenderPassSpec);
 
-		//s_Data.CompositeShader = Shader::Create("assets/shaders/hdr.glsl");
-		//s_Data.BRDFLUT = Texture2D::Create("assets/textures/BRDF_LUT.tga");
+		s_Data.CompositeShader = Shader::Create("assets/shaders/hdr.glsl");
+		s_Data.BRDFLUT = Texture2D::Create("assets/textures/BRDF_LUT.tga");
 
-		//auto gridShader = Shader::Create("assets/shaders/Grid.glsl");
-		//s_Data.GridMaterial = MaterialInstance::Create(Material::Create(gridShader));
-		//float gridScale = 16.025f, gridSize = 0.025f;
-		//s_Data.GridMaterial->Set("u_Scale", gridScale);
-		//s_Data.GridMaterial->Set("u_Res", gridSize);
+		/////GRID
+		auto gridShader = Shader::Create("assets/shaders/Grid.glsl");
+		s_Data.GridMaterial = MaterialInstance::Create(Material::Create(gridShader));
+		float gridScale = 16.025f, gridSize = 0.025f;
+		s_Data.GridMaterial->Set("u_Scale", gridScale);
+		s_Data.GridMaterial->Set("u_Res", gridSize);
 	}
 
 	void SceneRenderer::SetViewPortSize(uint32_t width, uint32_t height)
@@ -86,8 +87,8 @@ namespace RoMan
 		s_Data.ActiveScene = scene;
 
 		s_Data.SceneData.SceneCamera = scene->m_Camera;
-		//s_Data.SceneData.SkyboxMaterial = scene->m_SkyboxMaterial;
-		//s_Data.SceneData.SceneEnvironment = scene->m_Environment;
+		s_Data.SceneData.SkyboxMaterial = scene->m_SkyboxMaterial;
+		s_Data.SceneData.SceneEnvironment = scene->m_Environment;
 	}
 
 	void SceneRenderer::EndScene()
@@ -121,7 +122,7 @@ namespace RoMan
 			equirectangularConversionShader = Shader::Create("assets/shaders/EquirectangularToCubeMap.glsl");
 
 		Ref<Texture2D> envEquirect = Texture2D::Create(filepath);
-		//RM_CORE_ASSERT(envEquirect->GetFormat() == TextureFormat::Float16, "Texture is not HDR!");
+		RM_CORE_ASSERT(envEquirect->GetFormat() == TextureFormat::Float16, "Texture is not HDR!");
 
 		equirectangularConversionShader->Bind();
 		envEquirect->Bind();
@@ -180,30 +181,30 @@ namespace RoMan
 		auto viewProjection = s_Data.SceneData.SceneCamera.GetProjectionMatrix() * s_Data.SceneData.SceneCamera.GetViewMatrix();
 
 		// Skybox
-		//auto skyboxShader = s_Data.SceneData.SkyboxMaterial->GetShader();
-		//s_Data.SceneData.SkyboxMaterial->Set("u_InverseVP", glm::inverse(viewProjection));
+		auto skyboxShader = s_Data.SceneData.SkyboxMaterial->GetShader();
+		s_Data.SceneData.SkyboxMaterial->Set("u_InverseVP", glm::inverse(viewProjection));
 		// s_Data.SceneInfo.EnvironmentIrradianceMap->Bind(0);
-		//Renderer::SubmitFullscreenQuad(s_Data.SceneData.SkyboxMaterial);
+		Renderer::SubmitFullscreenQuad(s_Data.SceneData.SkyboxMaterial);
 
 		// Render entities
 		for (auto& dc : s_Data.DrawList)
 		{
 			auto baseMaterial = dc.Mesh->GetMaterial();
 			baseMaterial->Set("u_ViewProjectionMatrix", viewProjection);
-			//baseMaterial->Set("u_CameraPosition", s_Data.SceneData.SceneCamera.GetPosition());
+			baseMaterial->Set("u_CameraPosition", s_Data.SceneData.SceneCamera.GetPosition());
 
 			// Environment (TODO: don't do this per mesh)
-			//baseMaterial->Set("u_EnvRadianceTex", s_Data.SceneData.SceneEnvironment.RadianceMap);
-			//baseMaterial->Set("u_EnvIrradianceTex", s_Data.SceneData.SceneEnvironment.IrradianceMap);
-			//baseMaterial->Set("u_BRDFLUTTexture", s_Data.BRDFLUT);
+			baseMaterial->Set("u_EnvRadianceTex", s_Data.SceneData.SceneEnvironment.RadianceMap);
+			baseMaterial->Set("u_EnvIrradianceTex", s_Data.SceneData.SceneEnvironment.IrradianceMap);
+			baseMaterial->Set("u_BRDFLUTTexture", s_Data.BRDFLUT);
 
 			auto overrideMaterial = nullptr; // dc.Material;
 			Renderer::SubmitMesh(dc.Mesh, dc.Transform, overrideMaterial);
 		}
 
 		// Grid
-		//s_Data.GridMaterial->Set("u_ViewProjection", viewProjection);
-		//Renderer::SubmitQuad(s_Data.GridMaterial, glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(16.0f)));
+		s_Data.GridMaterial->Set("u_ViewProjection", viewProjection);
+		Renderer::SubmitQuad(s_Data.GridMaterial, glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(16.0f)));
 
 		Renderer::EndRenderPass();
 
@@ -234,7 +235,7 @@ namespace RoMan
 		RM_CORE_ASSERT(!s_Data.ActiveScene, "");
 
 		GeometryPass();
-		//CompositePass();
+		CompositePass();
 
 		s_Data.DrawList.clear();
 		s_Data.SceneData = {};

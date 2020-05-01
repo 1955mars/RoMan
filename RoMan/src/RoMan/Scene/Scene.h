@@ -47,5 +47,6 @@ namespace RoMan
 		float m_SkyboxLoD = 1.0f;
 
 		friend class SceneRenderer;
+		friend class SceneHierarchyPanel;
 	};
 }

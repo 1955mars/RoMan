@@ -2,6 +2,8 @@
 
 #include "rmpch.h"
 
+#include <functional>
+
 #include "RoMan/Core.h"
 #include "RoMan/Events/Event.h"
 

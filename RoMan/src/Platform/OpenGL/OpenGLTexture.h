@@ -39,7 +39,7 @@ namespace RoMan
 		uint32_t m_Width, m_Height;
 
 		Buffer m_ImageData;
-		bool IsHDR = false;
+		bool m_IsHDR = false;
 
 		bool m_Locked = false;
 		bool m_Loaded = false;

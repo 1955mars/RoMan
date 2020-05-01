@@ -1,5 +1,6 @@
 workspace "RoMan"
 	architecture "x64"
+	targetdir "build"
 
 	configurations
 	{
@@ -8,12 +9,15 @@ workspace "RoMan"
 		"Dist"
 	}
 
+	startproject "Colosseum"
+
 	flags
 	{
 		"MultiProcessorCompile"
 	}
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+
 
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}

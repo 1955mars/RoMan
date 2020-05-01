@@ -92,5 +92,6 @@ namespace RoMan
 		std::string m_FilePath;
 
 		friend class Renderer;
+		friend class SceneHierarchyPanel;
 	};
 }

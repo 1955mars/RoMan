@@ -11,6 +11,7 @@ namespace RoMan
 	{
 	public:
 		ImGuiLayer();
+		ImGuiLayer(const std::string& name);
 		~ImGuiLayer() = default;
 
 		virtual void OnAttach() override;

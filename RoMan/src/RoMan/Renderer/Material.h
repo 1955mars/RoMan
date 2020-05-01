@@ -107,6 +107,8 @@ namespace RoMan
 		void Set(const std::string& name, const Ref<Texture>& texture)
 		{
 			auto decl = m_Material->FindResourceDeclaration(name);
+			if (!decl)
+				RM_CORE_WARN("Cannot find material property: ", name);
 			uint32_t slot = decl->GetRegister();
 			if (m_Textures.size() <= slot)
 				m_Textures.resize((size_t)slot + 1);

@@ -21,46 +21,46 @@ namespace RoMan
 		s_Data.m_ShaderLibrary = std::make_unique<ShaderLibrary>();
 		RM_RENDER({ RendererAPI::Init(); });
 
-		Renderer::GetShaderLibrary()->Load("assets/shaders/Shader.glsl");
+		Renderer::GetShaderLibrary()->Load("assets/shaders/HazelPBR_Static.glsl");
 
 		SceneRenderer::Init();
 
-		//// Create fullscreen quad
-		//float x = -1;
-		//float y = -1;
-		//float width = 2, height = 2;
-		//struct QuadVertex
-		//{
-		//	glm::vec3 Position;
-		//	glm::vec2 TexCoord;
-		//};
+		// Create fullscreen quad
+		float x = -1;
+		float y = -1;
+		float width = 2, height = 2;
+		struct QuadVertex
+		{
+			glm::vec3 Position;
+			glm::vec2 TexCoord;
+		};
 
-		//QuadVertex* data = new QuadVertex[4];
+		QuadVertex* data = new QuadVertex[4];
 
-		//data[0].Position = glm::vec3(x, y, 0);
-		//data[0].TexCoord = glm::vec2(0, 0);
+		data[0].Position = glm::vec3(x, y, 0);
+		data[0].TexCoord = glm::vec2(0, 0);
 
-		//data[1].Position = glm::vec3(x + width, y, 0);
-		//data[1].TexCoord = glm::vec2(1, 0);
+		data[1].Position = glm::vec3(x + width, y, 0);
+		data[1].TexCoord = glm::vec2(1, 0);
 
-		//data[2].Position = glm::vec3(x + width, y + height, 0);
-		//data[2].TexCoord = glm::vec2(1, 1);
+		data[2].Position = glm::vec3(x + width, y + height, 0);
+		data[2].TexCoord = glm::vec2(1, 1);
 
-		//data[3].Position = glm::vec3(x, y + height, 0);
-		//data[3].TexCoord = glm::vec2(0, 1);
+		data[3].Position = glm::vec3(x, y + height, 0);
+		data[3].TexCoord = glm::vec2(0, 1);
 
-		//s_Data.m_FullscreenQuadVertexArray = VertexArray::Create();
-		//auto quadVB = VertexBuffer::Create((float*)data, 4 * sizeof(QuadVertex));
-		//quadVB->SetLayout({
-		//	{ ShaderDataType::Float3, "a_Position" },
-		//	{ ShaderDataType::Float2, "a_TexCoord" }
-		//	});
+		s_Data.m_FullscreenQuadVertexArray = VertexArray::Create();
+		auto quadVB = VertexBuffer::Create(data, 4 * sizeof(QuadVertex));
+		quadVB->SetLayout({
+			{ ShaderDataType::Float3, "a_Position" },
+			{ ShaderDataType::Float2, "a_TexCoord" }
+			});
 
-		//uint32_t indices[6] = { 0, 1, 2, 2, 3, 0, };
-		//auto quadIB = IndexBuffer::Create(indices, 6 * sizeof(uint32_t));
+		uint32_t indices[6] = { 0, 1, 2, 2, 3, 0, };
+		auto quadIB = IndexBuffer::Create(indices, 6 * sizeof(uint32_t));
 
-		//s_Data.m_FullscreenQuadVertexArray->AddVertexBuffer(quadVB);
-		//s_Data.m_FullscreenQuadVertexArray->SetIndexBuffer(quadIB);
+		s_Data.m_FullscreenQuadVertexArray->AddVertexBuffer(quadVB);
+		s_Data.m_FullscreenQuadVertexArray->SetIndexBuffer(quadIB);
 	}
 
 	const Scope<ShaderLibrary>& Renderer::GetShaderLibrary()

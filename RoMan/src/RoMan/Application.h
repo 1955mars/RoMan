@@ -40,6 +40,9 @@ namespace RoMan
 
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
+		void RenderImGui();
+
+		std::string OpenFile(const std::string& filter) const;
 
 		inline Window& GetWindow() { return *m_Window; }
 
@@ -50,9 +53,10 @@ namespace RoMan
 		bool OnWindowClose(WindowCloseEvent& e);
 
 		std::unique_ptr<Window> m_Window;
-		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
+		ImGuiLayer* m_ImGuiLayer;
+		Timestep m_TimeStep;
 
 		float m_LastFrameTime = 0.0f;
 	private:

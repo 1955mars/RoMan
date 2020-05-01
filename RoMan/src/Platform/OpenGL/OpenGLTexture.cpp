@@ -58,12 +58,28 @@ namespace RoMan
 		:m_FilePath(path)
 	{
 		int width, height, channels;
-		RM_CORE_INFO("Loading texture {0}, srgb={1}", path, srgb);
-		m_ImageData.Data = stbi_load(path.c_str(), &width, &height, &channels, srgb ? STBI_rgb : STBI_rgb_alpha);
+		if (stbi_is_hdr(path.c_str()))
+		{
+			RM_CORE_INFO("Loading HDR texture {0}, srgb={1}", path, srgb);
+			m_ImageData.Data = (byte*)stbi_loadf(path.c_str(), &width, &height, &channels, 0);
+			m_IsHDR = true;
+			m_Format = TextureFormat::Float16;
+		}
+		else
+		{
+			RM_CORE_INFO("Loading texture {0}, srgb={1}", path, srgb);
+			m_ImageData.Data = stbi_load(path.c_str(), &width, &height, &channels, srgb ? STBI_rgb : STBI_rgb_alpha);
+			RM_CORE_ASSERT(m_ImageData.Data, "Could not read image!");
+			m_Format = TextureFormat::RGBA;
+		}
+
+		if (!m_ImageData.Data)
+			return;
+
+		m_Loaded = true;
 		
 		m_Width = width;
 		m_Height = height;
-		m_Format = TextureFormat::RGBA;
 
 
 		RM_RENDER_S1(srgb, {
@@ -89,8 +105,12 @@ namespace RoMan
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-				glTexImage2D(GL_TEXTURE_2D, 0, RoManToOpenGLTextureFormat(self->m_Format), self->m_Width, self->m_Height, 0, srgb ? GL_SRGB8 : RoManToOpenGLTextureFormat(self->m_Format), GL_UNSIGNED_BYTE, self->m_ImageData.Data);
+				GLenum internalFormat = RoManToOpenGLTextureFormat(self->m_Format);
+				GLenum format = srgb ? GL_SRGB8 : (self->m_IsHDR ? GL_RGB : RoManToOpenGLTextureFormat(self->m_Format)); // HDR = GL_RGB for now
+				GLenum type = internalFormat == GL_RGBA16F ? GL_FLOAT : GL_UNSIGNED_BYTE;
+				glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, self->m_Width, self->m_Height, 0, format, type, self->m_ImageData.Data);
 				glGenerateMipmap(GL_TEXTURE_2D);
 
 				glBindTexture(GL_TEXTURE_2D, 0);

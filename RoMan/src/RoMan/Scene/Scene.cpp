@@ -20,16 +20,16 @@ namespace RoMan
 
 	void Scene::Init()
 	{
-		//auto skyboxShader = Shader::Create("assets/shaders/Skybox.glsl");
-		//m_SkyboxMaterial = MaterialInstance::Create(Material::Create(skyboxShader));
-		//m_SkyboxMaterial->SetFlag(MaterialFlag::DepthTest, false);
+		auto skyboxShader = Shader::Create("assets/shaders/Skybox.glsl");
+		m_SkyboxMaterial = MaterialInstance::Create(Material::Create(skyboxShader));
+		m_SkyboxMaterial->SetFlag(MaterialFlag::DepthTest, false);
 	}
 
 	void Scene::OnUpdate(Timestep ts)
 	{
 		m_Camera.Update(ts);
 
-		//m_SkyboxMaterial->Set("u_TextureLod", m_SkyboxLoD);
+		m_SkyboxMaterial->Set("u_TextureLod", m_SkyboxLoD);
 
 		//Update entities
 		for (auto entity : m_Entities)

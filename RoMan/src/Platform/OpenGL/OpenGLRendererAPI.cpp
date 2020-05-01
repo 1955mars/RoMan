@@ -8,22 +8,29 @@ namespace RoMan
 {
 	static void OpenGLLogMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 	{
-		if (severity != GL_DEBUG_SEVERITY_NOTIFICATION)
+		switch (severity)
 		{
-			RM_CORE_ERROR("{0}", message);
-			//RM_CORE_ASSERT(false, "");
-		}
-		else
-		{
-			// RM_CORE_TRACE("{0}", message);
+		case GL_DEBUG_SEVERITY_HIGH:
+			RM_CORE_ERROR("[OpenGL Debug HIGH] {0}", message);
+			RM_CORE_ASSERT(false, "GL_DEBUG_SEVERITY_HIGH");
+			break;
+		case GL_DEBUG_SEVERITY_MEDIUM:
+			RM_CORE_WARN("[OpenGL Debug MEDIUM] {0}", message);
+			break;
+		case GL_DEBUG_SEVERITY_LOW:
+			RM_CORE_INFO("[OpenGL Debug LOW] {0}", message);
+			break;
+		case GL_DEBUG_SEVERITY_NOTIFICATION:
+			// HZ_CORE_TRACE("[OpenGL Debug NOTIFICATION] {0}", message);
+			break;
 		}
 	}
 
 	void RendererAPI::Init()
 	{
-		//glDebugMessageCallback(OpenGLLogMessage, nullptr);
-		//glEnable(GL_DEBUG_OUTPUT);
-		//glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		glDebugMessageCallback(OpenGLLogMessage, nullptr);
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
 		unsigned int vao;
 		glGenVertexArrays(1, &vao);
@@ -31,8 +38,8 @@ namespace RoMan
 
 		glEnable(GL_DEPTH_TEST);
 		//glEnable(GL_CULL_FACE);
-		//glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-		//glFrontFace(GL_CCW);
+		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+		glFrontFace(GL_CCW);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

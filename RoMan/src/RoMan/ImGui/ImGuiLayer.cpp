@@ -1,6 +1,8 @@
 #include "rmpch.h"
 #include "ImGuiLayer.h"
 
+#include "ImGuizmo.h"
+
 #include "imgui.h"
 #include "examples/imgui_impl_glfw.h"
 #include "examples/imgui_impl_opengl3.h"
@@ -16,7 +18,10 @@ namespace RoMan
 {
 
 	ImGuiLayer::ImGuiLayer()
-		:Layer("ImGuiLayer")
+	{
+	}
+
+	ImGuiLayer::ImGuiLayer(const std::string& name)
 	{
 	}
 
@@ -33,6 +38,9 @@ namespace RoMan
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
+		ImFont* pFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
+		io.FontDefault = io.Fonts->Fonts.back();
+
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
 		//ImGui::StyleColorsClassic();
@@ -44,6 +52,7 @@ namespace RoMan
 			style.WindowRounding = 0.0f;
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
+		style.Colors[ImGuiCol_WindowBg] = ImVec4(0.15f, 0.15f, 0.15f, style.Colors[ImGuiCol_WindowBg].w);
 
 		Application& app = Application::Get();
 		GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
@@ -65,6 +74,7 @@ namespace RoMan
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
 	}
 
 	void ImGuiLayer::End()
@@ -88,8 +98,6 @@ namespace RoMan
 
 	void ImGuiLayer::OnImGuiRender()
 	{
-		static bool show = true;
-		ImGui::ShowDemoWindow(&show);
 	}
 
 }
