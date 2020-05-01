@@ -172,7 +172,7 @@ namespace RoMan
 
 			//TODO: Animation related
 
-			//shader->SetMat4("u_Transform", transform * submesh.Transform);
+			shader->SetMat4("u_Transform", transform * submesh.Transform);
 
 			RM_RENDER_2(submesh, material, {
 				if (material->GetFlag(MaterialFlag::DepthTest))

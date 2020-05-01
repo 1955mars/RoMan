@@ -84,7 +84,7 @@ namespace RoMan
 			m_Scene = std::make_shared<Scene>("Model Scene");
 			m_Scene->SetCamera(Camera(glm::perspectiveFov(glm::radians(45.0f), 1280.0f, 720.0f, 0.1f, 10000.0f)));
 
-			//m_Scene->SetEnvironment(environment);
+			m_Scene->SetEnvironment(environment);
 
 			m_MeshEntity = m_Scene->CreateEntity();
 
@@ -108,7 +108,7 @@ namespace RoMan
 
 			float x = -4.0f;
 			float roughness = 0.0f;
-			for (int i = 0; i < 1; i++)
+			for (int i = 0; i < 8; i++)
 			{
 				auto sphereEntity = m_SphereScene->CreateEntity();
 
@@ -461,7 +461,7 @@ namespace RoMan
 		auto [wx, wy] = Application::Get().GetWindow().GetWindowPos();
 		posX -= wx;
 		posY -= wy;
-		HZ_INFO("{0}, {1}", posX, posY);*/
+		RM_INFO("{0}, {1}", posX, posY);*/
 
 		auto viewportSize = ImGui::GetContentRegionAvail();
 
