@@ -16,11 +16,13 @@ void CircletoCircle(Manifold* m, Body* a, Body* b)
 	Circle* A = reinterpret_cast<Circle*>(a->shape);
 	Circle* B = reinterpret_cast<Circle*>(b->shape);
 
+	// Normal vector between the circles
 	glm::vec2 normal = b->position - a->position;
 
 	float dist_sqr = (normal.x * normal.x) + (normal.y * normal.y);
 	float radius = A->radius + B->radius;
 
+	// If not in contact
 	if (dist_sqr >= radius * radius)
 	{
 		m->contact_count = 0;
@@ -51,10 +53,12 @@ void CircletoPolygon(Manifold* m, Body* a, Body* b)
 	PolygonShape* B = reinterpret_cast<PolygonShape*>(b->shape);
 
 	m->contact_count = 0;
-
+	
+	// Transform circle center to Polygon model space
 	glm::vec2 center = a->position;
 	center = glm::transpose(B->u) * (center - b->position);
 
+	// Find edge with minimum penetration
 	float separation = -FLT_MAX;
 	glm::uint32 faceNormal = 0;
 	for (glm::uint32 i = 0; i < B->m_vertexCount; ++i)
@@ -71,10 +75,12 @@ void CircletoPolygon(Manifold* m, Body* a, Body* b)
 		}
 	}
 
+	// Grab face's vertices
 	glm::vec2 v1 = B->m_vertices[faceNormal];
 	glm::uint32 i2 = faceNormal + 1 < B->m_vertexCount ? faceNormal + 1 : 0;
 	glm::vec2 v2 = B->m_vertices[i2];
 
+	// Check to see if center is within polygon
 	if (separation < EPSILON)
 	{
 		m->contact_count = 1;
@@ -84,11 +90,12 @@ void CircletoPolygon(Manifold* m, Body* a, Body* b)
 		return;
 	}
 
+	// Determine which voronoi region of the edge center of circle lies within
 	float dot1 = glm::dot(center - v1, v2 - v1);
 	float dot2 = glm::dot(center - v2, v1 - v2);
 	m->penetration = A->radius - separation;
 
-	if (dot1 <= 0.0f)
+	if (dot1 <= 0.0f) // v1
 	{
 		if (glm::dot(center - v1, center - v1) > A->radius* A->radius)
 			return;
@@ -101,7 +108,7 @@ void CircletoPolygon(Manifold* m, Body* a, Body* b)
 		v1 = B->u * v1 + b->position;
 		m->contacts[0] = v1;
 	}
-	else if (dot2 <= 0.0f)
+	else if (dot2 <= 0.0f) //v2
 	{
 		if (glm::dot(center - v2, center - v2) > A->radius* A->radius)
 			return;
@@ -114,7 +121,7 @@ void CircletoPolygon(Manifold* m, Body* a, Body* b)
 		n = glm::normalize(n);
 		m->normal = n;
 	}
-	else
+	else // face
 	{
 		glm::vec2 n = B->m_normals[faceNormal];
 		if (glm::dot(center - v1, n) > A->radius)
@@ -140,21 +147,27 @@ float FindAxisLeastPenetration(glm::uint32* faceIndex, PolygonShape* A, PolygonS
 
 	for (glm::uint32 i = 0; i < A->m_vertexCount; ++i)
 	{
+		// Face normal from A
 		glm::vec2 n = A->m_normals[i];
 		glm::vec2 nw = A->u * n;
 
+		// // Transform face normal into B model space
 		glm::mat2 buT = glm::transpose(B->u);
 		n = buT * nw;
 
+		// Retrieve support point from B along -n
 		glm::vec2 s = B->GetSupport(-n);
 
+		// Retrieve vertex on face from A, transform into B model space
 		glm::vec2 v = A->m_vertices[i];
 		v = A->u * v + A->body->position;
 		v -= B->body->position;
 		v = buT * v;
 
+		// Compute penetration distance
 		float d = glm::dot(n, s - v);
 
+		// Store greatest distance
 		if (d > bestDistance)
 		{
 			bestDistance = d;
@@ -170,9 +183,11 @@ void FindIncidentFace(glm::vec2* v, PolygonShape* RefPoly, PolygonShape* IncPoly
 {
 	glm::vec2 referenceNormal = RefPoly->m_normals[referenceIndex];
 
+	// Calculate normal in incident's frame of reference
 	referenceNormal = RefPoly->u * referenceNormal;
 	referenceNormal = glm::transpose(IncPoly->u) * referenceNormal;
 
+	// Find most anti-normal face on incident polygon
 	glm::int32 incidentFace = 0;
 	float minDot = FLT_MAX;
 	for (glm::uint32 i = 0; i < IncPoly->m_vertexCount; ++i)
@@ -185,6 +200,7 @@ void FindIncidentFace(glm::vec2* v, PolygonShape* RefPoly, PolygonShape* IncPoly
 		}
 	}
 
+	// Assign face vertices for incidentFace
 	v[0] = IncPoly->u * IncPoly->m_vertices[incidentFace] + IncPoly->body->position;
 	incidentFace = incidentFace + 1 >= (glm::int32)IncPoly->m_vertexCount ? 0 : incidentFace + 1;
 	v[1] = IncPoly->u * IncPoly->m_vertices[incidentFace] + IncPoly->body->position;
@@ -198,19 +214,24 @@ glm::int32 Clip(glm::vec2 n, float c, glm::vec2* face)
 	  face[1]
 	};
 
+	// Retrieve distances from each endpoint to the line
 	float d1 = glm::dot(n, face[0]) - c;
 	float d2 = glm::dot(n, face[1]) - c;
 
+	// If negative (behind plane) clip
 	if (d1 <= 0.0f) out[sp++] = face[0];
 	if (d2 <= 0.0f) out[sp++] = face[1];
 
+	// If the points are on different sides of the plane
 	if (d1 * d2 < 0.0f)
 	{
+		// Push interesection point
 		float alpha = d1 / (d1 - d2);
 		out[sp] = face[0] + alpha * (face[1] - face[0]);
 		++sp;
 	}
 
+	// Assign new converted values
 	face[0] = out[0];
 	face[1] = out[1];
 
@@ -225,11 +246,13 @@ void PolygontoPolygon(Manifold* m, Body* a, Body* b)
 	PolygonShape* B = reinterpret_cast<PolygonShape*>(b->shape);
 	m->contact_count = 0;
 
+	// Check for a separating axis with A's face planes
 	glm::uint32 faceA;
 	float penetrationA = FindAxisLeastPenetration(&faceA, A, B);
 	if (penetrationA >= 0.0f)
 		return;
 
+	// Check for a separating axis with B's face planes
 	glm::uint32 faceB;
 	float penetrationB = FindAxisLeastPenetration(&faceB, B, A);
 	if (penetrationB >= 0.0f)
@@ -244,6 +267,7 @@ void PolygontoPolygon(Manifold* m, Body* a, Body* b)
 	const float k_biasRelative = 0.95f;
 	const float k_biasAbsolute = 0.01f;
 
+	// Determine which shape contains reference face
 	if (penetrationA >= penetrationB * k_biasRelative + penetrationA * k_biasAbsolute)
 	{
 		RefPoly = A;
@@ -251,7 +275,6 @@ void PolygontoPolygon(Manifold* m, Body* a, Body* b)
 		referenceIndex = faceA;
 		flip = false;
 	}
-
 	else
 	{
 		RefPoly = B;

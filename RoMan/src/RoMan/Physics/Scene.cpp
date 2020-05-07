@@ -78,38 +78,6 @@ void Scene::Render(void)
         Body* b = bodies[i];
         b->shape->Draw();
     }
-
-    /*glPointSize(4.0f);
-    glBegin(GL_POINTS);
-    glColor3f(1.0f, 0.0f, 0.0f);
-    for (uint32 i = 0; i < contacts.size(); ++i)
-    {
-        Manifold& m = contacts[i];
-        for (uint32 j = 0; j < m.contact_count; ++j)
-        {
-            Vec2 c = m.contacts[j];
-            glVertex2f(c.x, c.y);
-        }
-    }
-    glEnd();
-    glPointSize(1.0f);
-
-    glBegin(GL_LINES);
-    glColor3f(0.0f, 1.0f, 0.0f);
-    for (uint32 i = 0; i < contacts.size(); ++i)
-    {
-        Manifold& m = contacts[i];
-        Vec2 n = m.normal;
-        for (uint32 j = 0; j < m.contact_count; ++j)
-        {
-            Vec2 c = m.contacts[j];
-            glVertex2f(c.x, c.y);
-            n *= 0.75f;
-            c += n;
-            glVertex2f(c.x, c.y);
-        }
-    }
-    glEnd();*/
 }
 
 Body* Scene::Add(Shape* shape, glm::uint32 x, glm::uint32 y)

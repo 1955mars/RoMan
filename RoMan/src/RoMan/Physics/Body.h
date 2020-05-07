@@ -32,7 +32,7 @@ struct Body
 
 	float angularVelocity;
 	float torque;
-	float orient;
+	float orient; // Orientation - in radians
 
 	glm::vec2 force;
 

@@ -9,10 +9,10 @@
 #define MaxPolyVertexCount 64
 
 const float PI = 3.141592741f;
-const float EPSILON = 0.0001f;
-const float dt = 1.0f / 60.0f;
-const float gravityScale = -5.0f;
-const glm::vec2 gravity = glm::vec2(0.0f, 10.0f * gravityScale);
+const float EPSILON = 0.0001f; // To check against small values
+const float dt = 1.0f / 60.0f; // Time increment
+const float gravityScale = -5.0f; // Strength of gravity
+const glm::vec2 gravity = glm::vec2(0.0f, 10.0f * gravityScale); // Gravity
 
 struct Shape
 {
@@ -29,17 +29,16 @@ struct Shape
 	virtual void ComputeMass(float density) = 0;
 	virtual void SetOrient(float radians) = 0;
 	virtual void Draw(void) const = 0;
-	//virtual float* GetVertices(void) const = 0;
 	virtual Type GetType(void) const = 0;
 
 	Body* body;
 
-	float radius;
+	float radius; // For circle
 	
-	glm::mat2 u;
+	glm::mat2 u; // For polygon
 
-	//AABB aabb;
-	uint32_t indexCount;
+	// Keep track of our indices/vertices so we can add them to the vertex array
+	uint32_t indexCount; // Currently not used as dynamic index buffer is not implemented
 	uint32_t vertexCount;
 
 	float* vertices;
@@ -62,6 +61,7 @@ struct Circle : public Shape
 	{
 		ComputeMass(1.0f);
 
+		// Generate initial vertices
 		const glm::uint32 segments = 20;
 		float theta = body->orient;
 		float increment = PI * 2.0f / (float)segments;
@@ -98,6 +98,7 @@ struct Circle : public Shape
 
 	void Draw(void) const 
 	{
+		// Update vertices with new position
 		const glm::uint32 segments = 20;
 		float theta = body->orient;
 		float increment = PI * 2.0f / (float)segments;
@@ -117,16 +118,12 @@ struct Circle : public Shape
 		}
 	}
 
-	/*float* GetVertices(void) const
-	{
-		return vertices;
-	}*/
-
 	Type GetType(void) const
 	{
 		return eCircle;
 	}
 
+	// Hard coded indices for RoMaN engine, currently not implemented
 	uint32_t circleIndices[60] = { 0, 1, 2, 2, 3, 0,
 								   0, 3, 4, 4, 5, 0,
 								   0, 5, 6, 6, 7, 0,
@@ -164,6 +161,7 @@ struct PolygonShape : public Shape
 
 	void ComputeMass(float density)
 	{
+		// Centroid and moment of inertia
 		glm::vec2 centroid = glm::vec2(0.0f, 0.0f);
 		float area = 0.0f;
 		float inertia = 0.0f;
@@ -171,6 +169,7 @@ struct PolygonShape : public Shape
 
 		for (glm::uint32 i1 = 0; i1 < m_vertexCount; ++i1)
 		{
+			// Third vertex of triangle is assumed to be (0, 0)
 			glm::vec2 p1 = m_vertices[i1];
 			glm::uint32 i2 = i1 + 1 < m_vertexCount ? i1 + 1 : 0;
 			glm::vec2 p2 = m_vertices[i2];
@@ -180,6 +179,7 @@ struct PolygonShape : public Shape
 
 			area += triangleArea;
 
+			// Use area to weight the centroid average, not just vertex position
 			centroid += triangleArea * k_inv3 * (p1 + p2);
 
 			float intx2 = p1.x * p1.x + p2.x * p1.x + p2.x * p2.x;
@@ -233,6 +233,7 @@ struct PolygonShape : public Shape
 
 	void Set(glm::vec2* vertices, glm::uint32 count)
 	{
+		// Make sure there is at least 3 vertices
 		assert(count > 2 && count <= MaxPolyVertexCount);
 		count = glm::min((glm::int32)count, MaxPolyVertexCount);
 
@@ -294,9 +295,11 @@ struct PolygonShape : public Shape
 			}
 		}
 
+		// Copy vertices into shape's vertices
 		for (glm::uint32 i = 0; i < m_vertexCount; ++i)
 			m_vertices[i] = vertices[hull[i]];
 
+		// Compute face normals
 		for (glm::uint32 i1 = 0; i1 < m_vertexCount; ++i1)
 		{
 			glm::uint32 i2 = i1 + 1 < m_vertexCount ? i1 + 1 : 0;
@@ -304,13 +307,16 @@ struct PolygonShape : public Shape
 
 			float lf = face.x * face.x + face.y * face.y;
 
+			// Make sure edge isn't length 0
 			assert(lf > EPSILON * EPSILON);
 
+			// Calculate normal with 2D cross product between vector and scalar
 			m_normals[i1] = glm::vec2(face.y, -face.x);
 			m_normals[i1] = glm::normalize(m_normals[i1]);
 		}
 	}
 
+	// The extreme point along a direction within a polygon
 	glm::vec2 GetSupport(const glm::vec2& dir)
 	{
 		float bestProjection = -FLT_MAX;
@@ -330,27 +336,6 @@ struct PolygonShape : public Shape
 
 		return bestVertex;
 	}
-
-	/*Box(float height, float width)
-	{
-		aabb.min = { -width / 2.0f, -height / 2.0f };
-		aabb.max = { width / 2.0f, height / 2.0f };
-
-		vertices = new float[5 * 4]
-		{
-			aabb.min.x, aabb.min.y, 0.0f, 0.0f, 0.0f,
-			aabb.max.x, aabb.min.y, 0.0f, 1.0f, 0.0f,
-			aabb.max.x, aabb.max.y, 0.0f, 1.0f, 1.0f,
-			aabb.min.x, aabb.max.y, 0.0f, 0.0f, 1.0f
-		};
-	}*/
-
-	/*float* GetVertices(void) const
-	{
-		//float* vertices = new float[5 * 4];
-
-		return vertices;
-	}*/
 
 	Type GetType(void) const
 	{

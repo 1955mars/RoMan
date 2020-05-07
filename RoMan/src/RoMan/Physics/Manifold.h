@@ -19,7 +19,7 @@ struct Manifold
 	glm::vec2 normal;
 	glm::vec2 contacts[2];
 	glm::uint32 contact_count;
-	float e;
-	float df;
-	float sf;
+	float e;  // Restitution
+	float df; // Dynamic friction
+	float sf; // Static friction
 };
