@@ -17,6 +17,9 @@ namespace RoMan {
 	{
 		m_Shader->AddShaderReloadedCallback(std::bind(&Material::OnShaderReloaded, this));
 		AllocateStorage();
+
+		m_MaterialFlags |= (uint32_t)MaterialFlag::DepthTest;
+		m_MaterialFlags |= (uint32_t)MaterialFlag::Blend;
 	}
 
 	Material::~Material()
@@ -25,13 +28,20 @@ namespace RoMan {
 
 	void Material::AllocateStorage()
 	{
-		const auto& vsBuffer = m_Shader->GetVSMaterialUniformBuffer();
-		m_VSUniformStorageBuffer.Allocate(vsBuffer.GetSize());
-		m_VSUniformStorageBuffer.ZeroInitialize();
+		if (m_Shader->HasVSMaterialUniformBuffer())
+		{
+			const auto& vsBuffer = m_Shader->GetVSMaterialUniformBuffer();
+			m_VSUniformStorageBuffer.Allocate(vsBuffer.GetSize());
+			m_VSUniformStorageBuffer.ZeroInitialize();
+		}
 
-		const auto& psBuffer = m_Shader->GetFSMaterialUniformBuffer();
-		m_FSUniformStorageBuffer.Allocate(psBuffer.GetSize());
-		m_FSUniformStorageBuffer.ZeroInitialize();
+		if (m_Shader->HasFSMaterialUniformBuffer())
+		{
+			const auto& psBuffer = m_Shader->GetFSMaterialUniformBuffer();
+			m_FSUniformStorageBuffer.Allocate(psBuffer.GetSize());
+			m_FSUniformStorageBuffer.ZeroInitialize();
+		}
+
 	}
 
 	void Material::OnShaderReloaded()
@@ -141,13 +151,20 @@ namespace RoMan {
 
 	void MaterialInstance::AllocateStorage()
 	{
-		const auto& vsBuffer = m_Material->m_Shader->GetVSMaterialUniformBuffer();
-		m_VSUniformStorageBuffer.Allocate(vsBuffer.GetSize());
-		memcpy(m_VSUniformStorageBuffer.Data, m_Material->m_VSUniformStorageBuffer.Data, vsBuffer.GetSize());
+		if (m_Material->m_Shader->HasVSMaterialUniformBuffer())
+		{
+			const auto& vsBuffer = m_Material->m_Shader->GetVSMaterialUniformBuffer();
+			m_VSUniformStorageBuffer.Allocate(vsBuffer.GetSize());
+			memcpy(m_VSUniformStorageBuffer.Data, m_Material->m_VSUniformStorageBuffer.Data, vsBuffer.GetSize());
+		}
 
-		const auto& psBuffer = m_Material->m_Shader->GetFSMaterialUniformBuffer();
-		m_PSUniformStorageBuffer.Allocate(psBuffer.GetSize());
-		memcpy(m_PSUniformStorageBuffer.Data, m_Material->m_FSUniformStorageBuffer.Data, psBuffer.GetSize());
+		if (m_Material->m_Shader->HasFSMaterialUniformBuffer())
+		{
+			const auto& psBuffer = m_Material->m_Shader->GetFSMaterialUniformBuffer();
+			m_PSUniformStorageBuffer.Allocate(psBuffer.GetSize());
+			memcpy(m_PSUniformStorageBuffer.Data, m_Material->m_FSUniformStorageBuffer.Data, psBuffer.GetSize());
+		}
+
 	}
 
 	void MaterialInstance::OnMaterialValueUpdated(ShaderUniformDeclaration* decl)

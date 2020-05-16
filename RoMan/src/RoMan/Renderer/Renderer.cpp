@@ -22,6 +22,7 @@ namespace RoMan
 		RM_RENDER({ RendererAPI::Init(); });
 
 		Renderer::GetShaderLibrary()->Load("assets/shaders/HazelPBR_Static.glsl");
+		Renderer::GetShaderLibrary()->Load("assets/shaders/HazelPBR_Anim.glsl");
 
 		SceneRenderer::Init();
 
@@ -170,7 +171,15 @@ namespace RoMan
 			auto shader = material->GetShader();
 			material->Bind();
 
-			//TODO: Animation related
+			//Animation related
+			if (mesh->m_IsAnimated)
+			{
+				for (size_t i = 0; i < mesh->m_BoneTransforms.size(); i++)
+				{
+					std::string uniformName = std::string("u_BoneTransforms[") + std::to_string(i) + std::string("]");
+					mesh->m_MeshShader->SetMat4(uniformName, mesh->m_BoneTransforms[i]);
+				}
+			}
 
 			shader->SetMat4("u_Transform", transform * submesh.Transform);
 

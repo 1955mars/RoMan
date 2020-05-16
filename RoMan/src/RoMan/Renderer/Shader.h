@@ -140,7 +140,7 @@ namespace RoMan
 		virtual const ShaderUniformBufferList& GetVSRendererUniforms() const = 0;
 		virtual const ShaderUniformBufferList& GetFSRendererUniforms() const = 0;
 		virtual bool HasVSMaterialUniformBuffer() const = 0;
-		virtual bool HasPSMaterialUniformBuffer() const = 0;
+		virtual bool HasFSMaterialUniformBuffer() const = 0;
 		virtual const ShaderUniformBufferDeclaration& GetVSMaterialUniformBuffer() const = 0;
 		virtual const ShaderUniformBufferDeclaration& GetFSMaterialUniformBuffer() const = 0;
 

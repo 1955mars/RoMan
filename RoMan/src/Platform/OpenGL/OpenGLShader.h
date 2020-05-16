@@ -39,7 +39,7 @@ namespace RoMan
 		inline const ShaderUniformBufferList& GetVSRendererUniforms() const override { return m_VSRendererUniformBuffers; }
 		inline const ShaderUniformBufferList& GetFSRendererUniforms() const override { return m_FSRendererUniformBuffers; }
 		virtual bool HasVSMaterialUniformBuffer() const override { return (bool)m_VSMaterialUniformBuffer; }
-		virtual bool HasPSMaterialUniformBuffer() const override { return (bool)m_FSMaterialUniformBuffer; }
+		virtual bool HasFSMaterialUniformBuffer() const override { return (bool)m_FSMaterialUniformBuffer; }
 		inline const ShaderUniformBufferDeclaration& GetVSMaterialUniformBuffer() const override { return *m_VSMaterialUniformBuffer; }
 		inline const ShaderUniformBufferDeclaration& GetFSMaterialUniformBuffer() const override { return *m_FSMaterialUniformBuffer; }
 		inline const ShaderResourceList& GetResources() const override { return m_Resources; }
